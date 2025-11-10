@@ -5,106 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Sameer Alam - Resume</title>
   <meta name="description" content="Resume of Sameer Alam - DevOps Engineer and Web Developer with experience in Python, Django, AWS, Kubernetes, Docker, and more.">
-  <!-- Bootstrap CSS CDN -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
   <!-- Bootstrap Icons for clickable icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-  <!-- External CSS (optional, move custom CSS here for better performance) -->
-  <link rel="stylesheet" href="styles.css">
   <style>
-    /* Optimized Custom CSS. Consider moving this to styles.css */
-    :root {
-      --primary-color: #0d6efd;
-      --primary-hover: #0a58ca;
-      --bg-light: #f8f9fa;
-      --text-color: #343a40;
-      --card-bg: #fff;
-      --shadow-light: rgba(0,0,0,0.05);
-      --shadow-medium: rgba(0,0,0,0.1);
+    /* Custom animations and utilities */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: var(--bg-light);
-      color: var(--text-color);
-      margin: 0;
-      padding: 0;
-      line-height: 1.6;
-      scroll-behavior: smooth;
+    @keyframes slideInUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
     }
-    a {
-      color: var(--primary-color);
-      text-decoration: none;
-      transition: color 0.3s;
+    .animate-fadeIn {
+      animation: fadeIn 1s ease-out;
     }
-    a:hover { 
-      color: var(--primary-hover);
+    .animate-slideInUp {
+      animation: slideInUp 0.8s ease-out;
     }
-    /* Navigation Bar */
-    .navbar {
-      background: #fff;
-      box-shadow: 0 2px 4px var(--shadow-light);
-    }
-    .navbar-nav .nav-link {
-      padding: 1rem;
-      font-weight: 500;
-    }
-    /* Header */
-    header {
+    .gradient-bg {
       background: linear-gradient(135deg, #e9ecef, #ffffff);
-      text-align: center;
-      padding: 3rem 1rem;
-      box-shadow: 0 6px 12px var(--shadow-medium);
-      position: relative;
-      overflow: hidden;
-    }
-    header::after {
-      content: "";
-      position: absolute;
-      top: -20%; left: -20%;
-      width: 140%; height: 140%;
-      background: radial-gradient(circle, rgba(13,110,253,0.05), transparent 70%);
-      animation: pulse 8s infinite;
-      z-index: 0;
-    }
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); opacity: 0.7; }
-      50% { transform: scale(1.1); opacity: 1; }
-    }
-    header .container { position: relative; z-index: 1; }
-    header h1 { font-size: 3.2rem; margin-bottom: 0.5rem; animation: slideIn 1s ease-out; }
-    header p.headline { font-size: 1.3rem; font-weight: 300; animation: fadeIn 2s ease-out; }
-    @keyframes slideIn { 
-      from { transform: translateY(-20px); opacity: 0; } 
-      to { transform: translateY(0); opacity: 1; } 
-    }
-    @keyframes fadeIn { 
-      from { opacity: 0; } 
-      to { opacity: 1; } 
-    }
-    /* Main Content */
-    main {
-      max-width: 960px;
-      margin: 2rem auto;
-      padding: 0 1rem;
-    }
-    .content-section {
-      background: var(--card-bg);
-      padding: 2rem;
-      margin-bottom: 2rem;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px var(--shadow-light);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .content-section:hover { 
-      transform: translateY(-5px);
-      box-shadow: 0 6px 12px var(--shadow-medium);
     }
     .section-title {
-      font-size: 1.8rem;
-      margin-bottom: 1.5rem;
-      font-weight: 600;
-      border-bottom: 3px solid var(--primary-color);
-      padding-bottom: 0.5rem;
       position: relative;
     }
     .section-title::after {
@@ -114,531 +38,465 @@
       left: 0;
       width: 50px;
       height: 4px;
-      background: linear-gradient(90deg, var(--primary-color), var(--primary-hover));
+      background: linear-gradient(90deg, #3b82f6, #1d4ed8);
       border-radius: 2px;
     }
-    ul.skills {
-      list-style: none;
-      padding: 0;
+    .skill-tag {
+      transition: all 0.3s ease;
     }
-    ul.skills li {
-      display: inline-block;
-      background: #e9ecef;
-      padding: 0.4rem 0.8rem;
-      margin: 0.3rem;
-      border-radius: 20px;
-      font-size: 0.9rem;
-      transition: background 0.3s, transform 0.3s;
+    .skill-tag:hover {
+      transform: translateY(-2px);
     }
-    ul.skills li:hover { 
-      background: #ced4da;
-      transform: scale(1.05);
+    .card-hover {
+      transition: all 0.3s ease;
     }
-    .certification-card { 
-      border: none; 
-      border-radius: 10px; 
-      transition: box-shadow 0.3s, transform 0.3s;
-    }
-    .certification-card:hover { 
-      box-shadow: 0 4px 12px var(--shadow-medium);
-      transform: translateY(-3px);
-    }
-    /* Footer */
-    footer {
-      background: #e9ecef;
-      text-align: center;
-      padding: 1rem 0;
-      font-size: 0.9rem;
-    }
-    /* Back-to-Top Button */
-    #backToTop {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: var(--primary-color);
-      color: #fff;
-      border: none;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 4px 8px var(--shadow-light);
-      transition: background 0.3s, transform 0.3s;
-      z-index: 1000;
-    }
-    #backToTop:hover {
-      background: var(--primary-hover);
-      transform: scale(1.1);
-    }
-    @media (max-width: 576px) {
-      header h1 { font-size: 2.4rem; }
-      header p.headline { font-size: 1rem; }
-      .section-title { font-size: 1.6rem; }
+    .card-hover:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     }
   </style>
 </head>
-<body>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased">
   <!-- Navigation Menu -->
-  <nav class="navbar navbar-expand-lg sticky-top" aria-label="Main Navigation">
-    <div class="container">
-      <a class="navbar-brand" href="#">Resume</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navMenu">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link" href="#profile">Profile</a></li>
-          <li class="nav-item"><a class="nav-link" href="#experience">Experience</a></li>
-          <li class="nav-item"><a class="nav-link" href="#education">Education</a></li>
-          <li class="nav-item"><a class="nav-link" href="#skills">Skills</a></li>
-          <li class="nav-item"><a class="nav-link" href="#projects">Projects</a></li>
-          <li class="nav-item"><a class="nav-link" href="#certifications">Certifications</a></li>
-          <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
-        </ul>
+  <nav class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4">
+      <div class="flex justify-between items-center py-3">
+        <a href="#" class="text-xl font-bold text-blue-600">Resume</a>
+        <div class="hidden md:flex space-x-6">
+          <a href="#profile" class="text-gray-600 hover:text-blue-600 transition-colors">Profile</a>
+          <a href="#experience" class="text-gray-600 hover:text-blue-600 transition-colors">Experience</a>
+          <a href="#education" class="text-gray-600 hover:text-blue-600 transition-colors">Education</a>
+          <a href="#skills" class="text-gray-600 hover:text-blue-600 transition-colors">Skills</a>
+          <a href="#projects" class="text-gray-600 hover:text-blue-600 transition-colors">Projects</a>
+          <a href="#certifications" class="text-gray-600 hover:text-blue-600 transition-colors">Certifications</a>
+          <a href="#contact" class="text-gray-600 hover:text-blue-600 transition-colors">Contact</a>
+        </div>
+        <!-- Mobile menu button -->
+        <button class="md:hidden text-gray-600 focus:outline-none" id="mobileMenuButton">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
+      </div>
+      <!-- Mobile menu -->
+      <div class="md:hidden hidden py-2" id="mobileMenu">
+        <div class="flex flex-col space-y-3">
+          <a href="#profile" class="text-gray-600 hover:text-blue-600 transition-colors">Profile</a>
+          <a href="#experience" class="text-gray-600 hover:text-blue-600 transition-colors">Experience</a>
+          <a href="#education" class="text-gray-600 hover:text-blue-600 transition-colors">Education</a>
+          <a href="#skills" class="text-gray-600 hover:text-blue-600 transition-colors">Skills</a>
+          <a href="#projects" class="text-gray-600 hover:text-blue-600 transition-colors">Projects</a>
+          <a href="#certifications" class="text-gray-600 hover:text-blue-600 transition-colors">Certifications</a>
+          <a href="#contact" class="text-gray-600 hover:text-blue-600 transition-colors">Contact</a>
+        </div>
       </div>
     </div>
   </nav>
 
   <!-- Header Section -->
-  <header>
-    <div class="container">
-      <h1>Sameer Alam</h1>
-      <p class="headline">
+  <header class="gradient-bg py-16 md:py-20 relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 opacity-70"></div>
+    <div class="container mx-auto px-4 text-center relative z-10">
+      <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4 animate-slideInUp">Sameer Alam</h1>
+      <p class="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto animate-fadeIn">
         DevOps Engineer | Python, Django, HTML, CSS | CI/CD | AWS, Kubernetes, Docker, Ansible | SRE &amp; Cloud Certified | Web Developer
       </p>
     </div>
   </header>
 
   <!-- Main Content -->
-  <main>
+  <main class="container mx-auto px-4 py-8">
     <!-- Profile Summary -->
-    <section class="content-section" id="profile" aria-labelledby="profile-heading">
-      <h2 class="section-title" id="profile-heading">Profile Summary</h2>
-      <p>
-        Accomplished System Administrator, DevOps Engineer, and Web Developer with over 7 years of experience managing large-scale Linux, Unix, and Windows environments. Proven ability to reduce system downtime by <strong>30%</strong> through effective automation, containerization, and security hardening measures.
-      </p>
-      <p>
-        Adept at orchestrating robust CI/CD pipelines, I have also developed dynamic web applications using <strong>Python</strong>, <strong>Django</strong>, <strong>HTML5</strong>, and <strong>CSS3</strong>—deploying and automating workflows with GitHub Actions. I am continuously expanding my expertise with industry-leading tools and technologies.
-      </p>
+    <section id="profile" class="bg-white rounded-xl shadow-md p-6 mb-8 card-hover animate-fadeIn">
+      <h2 class="text-2xl font-bold text-gray-800 mb-4 section-title">Profile Summary</h2>
+      <div class="space-y-4">
+        <p class="text-gray-700">
+          Accomplished System Administrator, DevOps Engineer, and Web Developer with over 8 years of experience managing large-scale Linux, Unix, and Windows environments. Proven ability to reduce system downtime by <strong class="font-semibold">30%</strong> through effective automation, containerization, and security hardening measures.
+        </p>
+        <p class="text-gray-700">
+          Adept at orchestrating robust CI/CD pipelines, I have also developed dynamic web applications using <strong class="font-semibold">Python</strong>, <strong class="font-semibold">Django</strong>, <strong class="font-semibold">HTML5</strong>, and <strong class="font-semibold">CSS3</strong>—deploying and automating workflows with GitHub Actions. I am continuously expanding my expertise with industry-leading tools and technologies.
+        </p>
+      </div>
     </section>
 
     <!-- Work Experience -->
-    <section class="content-section" id="experience" aria-labelledby="experience-heading">
-      <h2 class="section-title" id="experience-heading">Work Experience</h2>
+    <section id="experience" class="bg-white rounded-xl shadow-md p-6 mb-8 card-hover animate-fadeIn">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6 section-title">Work Experience</h2>
       
       <!-- SRE DevOps Experience at IBM -->
-      <div class="mb-4">
-        <h3>Site Reliability Engineer - IBM <small class="text-muted">(Jun 2021 - Present)</small></h3>
-        <ul>
-          <li>Managed over <strong>500 servers</strong> running diverse operating systems including RHEL, AIX, SUSE, Ubuntu, Debian, and Windows Server.</li>
-          <li>Implemented patches and updates via shell scripts and Ansible, ensuring system security and reducing vulnerability risks.</li>
-          <li>Installed and renewed SSL certificates; deployed Endpoint Detection and Response (EDR) solutions to enhance system security.</li>
-          <li>Monitored systems using Nagios and API monitoring tools; integrated Grafana and Prometheus for advanced visualization.</li>
-          <li>Developed comprehensive infrastructure documentation with Wiki.js and GitHub, streamlining team communication.</li>
-          <li>Engineered and maintained CI/CD pipelines using Jenkins, Travis CI, and integrated SonarQube for code quality.</li>
-          <li>Configured and maintained web servers with Nginx, Apache, and managed containerization using Docker, Podman, and Rancher Desktop.</li>
-          <li>Utilized ServiceNow for IT service management and operational support.</li>
+      <div class="mb-8">
+        <h3 class="text-xl font-semibold text-gray-800">Site Reliability Engineer - IBM <span class="text-gray-500 text-lg font-normal">(Jun 2021 - Present)</span></h3>
+        <ul class="mt-3 space-y-2 text-gray-700">
+          <li class="flex items-start">
+            <span class="text-blue-500 mr-2">•</span>
+            <span>Managed over <strong class="font-semibold">500 servers</strong> running diverse operating systems including RHEL, AIX, SUSE, Ubuntu, Debian, and Windows Server.</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-blue-500 mr-2">•</span>
+            <span>Implemented patches and updates via shell scripts and Ansible, ensuring system security and reducing vulnerability risks.</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-blue-500 mr-2">•</span>
+            <span>Installed and renewed SSL certificates; deployed Endpoint Detection and Response (EDR) solutions to enhance system security.</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-blue-500 mr-2">•</span>
+            <span>Monitored systems using Nagios and API monitoring tools; integrated Grafana and Prometheus for advanced visualization.</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-blue-500 mr-2">•</span>
+            <span>Developed comprehensive infrastructure documentation with Wiki.js and GitHub, streamlining team communication.</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-blue-500 mr-2">•</span>
+            <span>Engineered and maintained CI/CD pipelines using Jenkins, Travis CI, and integrated SonarQube for code quality.</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-blue-500 mr-2">•</span>
+            <span>Configured and maintained web servers with Nginx, Apache, and managed containerization using Docker, Podman, and Rancher Desktop.</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-blue-500 mr-2">•</span>
+            <span>Utilized ServiceNow for IT service management and operational support.</span>
+          </li>
         </ul>
       </div>
       
       <!-- EY Experience -->
-      <div class="mb-4">
-        <h3>System Engineer - EY <small class="text-muted">(Feb 2020 - May 2021)</small></h3>
-        <p>
-          Delivered top-tier software support by diagnosing and resolving issues promptly, reducing system downtime by <strong>30%</strong> and ensuring seamless business operations.
-        </p>
-        <p>
-          <strong>Software Support Specialist:</strong> Leveraged strong troubleshooting skills to resolve complex software issues, collaborated effectively with development teams, and escalated vendor-related challenges when necessary. Achieved faster resolution times and improved user satisfaction.
-        </p>
+      <div class="mb-8">
+        <h3 class="text-xl font-semibold text-gray-800">System Engineer - EY <span class="text-gray-500 text-lg font-normal">(Feb 2020 - May 2021)</span></h3>
+        <div class="mt-3 space-y-3 text-gray-700">
+          <p>
+            Delivered top-tier software support by diagnosing and resolving issues promptly, reducing system downtime by <strong class="font-semibold">30%</strong> and ensuring seamless business operations.
+          </p>
+          <p>
+            <strong class="font-semibold">Software Support Specialist:</strong> Leveraged strong troubleshooting skills to resolve complex software issues, collaborated effectively with development teams, and escalated vendor-related challenges when necessary. Achieved faster resolution times and improved user satisfaction.
+          </p>
+        </div>
       </div>
 
       <!-- Netsoft Consulting Experience -->
-      <div class="mb-4">
-        <h3>System Engineer - Netsoft Consulting Services (P) Ltd <small class="text-muted">(Dec 2018 - Feb 2020)</small></h3>
-        <ul>
-          <li>Installed, configured, and maintained diverse software applications and operating systems.</li>
-          <li>Diagnosed and resolved user issues with a focus on minimizing downtime and boosting operational efficiency.</li>
-          <li>Managed IT infrastructure effectively, ensuring smooth network and system operations.</li>
+      <div class="mb-8">
+        <h3 class="text-xl font-semibold text-gray-800">System Engineer - Netsoft Consulting Services (P) Ltd <span class="text-gray-500 text-lg font-normal">(Dec 2018 - Feb 2020)</span></h3>
+        <ul class="mt-3 space-y-2 text-gray-700">
+          <li class="flex items-start">
+            <span class="text-blue-500 mr-2">•</span>
+            <span>Installed, configured, and maintained diverse software applications and operating systems.</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-blue-500 mr-2">•</span>
+            <span>Diagnosed and resolved user issues with a focus on minimizing downtime and boosting operational efficiency.</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-blue-500 mr-2">•</span>
+            <span>Managed IT infrastructure effectively, ensuring smooth network and system operations.</span>
+          </li>
         </ul>
       </div>
 
       <!-- Quatrro Experience -->
       <div>
-        <h3>Solutions Engineer - Quatrro <small class="text-muted">(May 2018 - Dec 2018)</small></h3>
-        <ul>
-          <li>Provided proactive remote technical support for US-based customers, ensuring high satisfaction rates.</li>
-          <li>Configured Microsoft Outlook and performed efficient software/hardware troubleshooting to resolve user challenges.</li>
+        <h3 class="text-xl font-semibold text-gray-800">Solutions Engineer - Quatrro <span class="text-gray-500 text-lg font-normal">(May 2018 - Dec 2018)</span></h3>
+        <ul class="mt-3 space-y-2 text-gray-700">
+          <li class="flex items-start">
+            <span class="text-blue-500 mr-2">•</span>
+            <span>Provided proactive remote technical support for US-based customers, ensuring high satisfaction rates.</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-blue-500 mr-2">•</span>
+            <span>Configured Microsoft Outlook and performed efficient software/hardware troubleshooting to resolve user challenges.</span>
+          </li>
         </ul>
       </div>
     </section>
 
     <!-- Education -->
-    <section class="content-section" id="education" aria-labelledby="education-heading">
-      <h2 class="section-title" id="education-heading">Education</h2>
-      <div>
-        <p><strong>MCA</strong> - Jain University, Bangalore (2024)</p>
-        <p><strong>BCA</strong> - Magadh University (2017)</p>
+    <section id="education" class="bg-white rounded-xl shadow-md p-6 mb-8 card-hover animate-fadeIn">
+      <h2 class="text-2xl font-bold text-gray-800 mb-4 section-title">Education</h2>
+      <div class="space-y-3">
+        <p class="text-gray-700"><strong class="font-semibold">MCA</strong> - Jain University, Bangalore (2024)</p>
+        <p class="text-gray-700"><strong class="font-semibold">BCA</strong> - Magadh University (2017)</p>
       </div>
     </section>
 
     <!-- Key Skills -->
-    <section class="content-section" id="skills" aria-labelledby="skills-heading">
-      <h2 class="section-title" id="skills-heading">Key Skills</h2>
-      <ul class="skills">
-        <li>Docker &amp; Containers</li>
-        <li>Kubernetes</li>
-        <li>Linux Administration</li>
-        <li>Nagios &amp; API Monitoring Tools</li>
-        <li>Windows Server Administration</li>
-        <li>Extended Detection &amp; Response (XDR)</li>
-        <li>CI/CD (Jenkins, Travis CI)</li>
-        <li>Ansible &amp; Shell Scripting</li>
-        <li>Python &amp; Django</li>
-        <li>HTML5 &amp; CSS3</li>
-        <li>GitHub Pages &amp; GitHub Actions</li>
-        <li>DNS &amp; Networking</li>
-        <li>GitHub &amp; API Integration</li>
-        <li>Node.js &amp; Express.js (Learning)</li>
-        <li>RESTful APIs &amp; Postman Testing</li>
-        <li>ServiceNow</li>
-        <li>Grafana &amp; Prometheus</li>
-        <li>Rancher Desktop</li>
-        <li>Podman</li>
-        <li>Nginx &amp; Apache</li>
-        <li>SonarQube</li>
-      </ul>
+    <section id="skills" class="bg-white rounded-xl shadow-md p-6 mb-8 card-hover animate-fadeIn">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6 section-title">Key Skills</h2>
+      <div class="flex flex-wrap gap-3">
+        <span class="skill-tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">Docker &amp; Containers</span>
+        <span class="skill-tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">Kubernetes</span>
+        <span class="skill-tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">Linux Administration</span>
+        <span class="skill-tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">Nagios &amp; API Monitoring Tools</span>
+        <span class="skill-tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">Windows Server Administration</span>
+        <span class="skill-tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">Extended Detection &amp; Response (XDR)</span>
+        <span class="skill-tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">CI/CD (Jenkins, Travis CI)</span>
+        <span class="skill-tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">Ansible &amp; Shell Scripting</span>
+        <span class="skill-tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">Python &amp; Django</span>
+        <span class="skill-tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">HTML5 &amp; CSS3</span>
+        <span class="skill-tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">GitHub Pages &amp; GitHub Actions</span>
+        <span class="skill-tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">DNS &amp; Networking</span>
+        <span class="skill-tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">GitHub &amp; API Integration</span>
+        <span class="skill-tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">Node.js &amp; Express.js (Learning)</span>
+        <span class="skill-tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">RESTful APIs &amp; Postman Testing</span>
+        <span class="skill-tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">ServiceNow</span>
+        <span class="skill-tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">Grafana &amp; Prometheus</span>
+        <span class="skill-tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">Rancher Desktop</span>
+        <span class="skill-tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">Podman</span>
+        <span class="skill-tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">Nginx &amp; Apache</span>
+        <span class="skill-tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">SonarQube</span>
+      </div>
     </section>
 
     <!-- Projects -->
-    <section class="content-section" id="projects" aria-labelledby="projects-heading">
-      <h2 class="section-title" id="projects-heading">Projects</h2>
-      <div class="mb-3">
-        <p><strong>Exam Portal</strong> (6 Months)</p>
-        <p>
-          Developed an online platform to manage exams, courses, questions, and results. This initiative improved exam processing speed by <strong>25%</strong> and enhanced user experience.
-          <a href="https://github.com/sameeralam3127/Online-Exam-portal" target="_blank" rel="noopener noreferrer">View on GitHub</a>
-        </p>
-      </div>
-      <div class="mb-3">
-        <p><strong>LMS Project</strong> (6 Months)</p>
-        <p>
-          Engineered a comprehensive Learning Management System with Django, streamlining course, student, and instructor management. The system increased process efficiency and provided intuitive user navigation.
-          <a href="https://github.com/sameeralam3127/lms-project" target="_blank" rel="noopener noreferrer">View on GitHub</a>
-        </p>
-      </div>
-      <div class="mb-3">
-        <p><strong>Dynamic Web App</strong> (6 Months)</p>
-        <p>
-          Developed a fully responsive web application using Python, Django, HTML, and CSS. The site is hosted on GitHub Pages with automated deployments via GitHub Actions. Integrated RESTful APIs and utilized Postman for API testing.
-          <a href="https://github.com/sameeralam3127/lms-project" target="_blank" rel="noopener noreferrer">View on GitHub</a>
-        </p>
-      </div>
-      <div>
-        <p><strong>CI/CD Pipeline Automation</strong> (4 Months)</p>
-        <p>
-          Engineered an automated CI/CD pipeline leveraging GitHub Actions, streamlining the development and deployment processes for various projects. This setup enhanced code integration and delivery efficiency.
-          <a href="https://github.com/sameeralam3127/Devops-automation" target="_blank" rel="noopener noreferrer">View on GitHub</a>
-        </p>
+    <section id="projects" class="bg-white rounded-xl shadow-md p-6 mb-8 card-hover animate-fadeIn">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6 section-title">Projects</h2>
+      <div class="space-y-6">
+        <div>
+          <h3 class="text-lg font-semibold text-gray-800">Exam Portal <span class="text-gray-500 text-base font-normal">(6 Months)</span></h3>
+          <p class="mt-2 text-gray-700">
+            Developed an online platform to manage exams, courses, questions, and results. This initiative improved exam processing speed by <strong class="font-semibold">25%</strong> and enhanced user experience.
+            <a href="https://github.com/sameeralam3127/Online-Exam-portal" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 ml-1 font-medium">View on GitHub</a>
+          </p>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-gray-800">LMS Project <span class="text-gray-500 text-base font-normal">(6 Months)</span></h3>
+          <p class="mt-2 text-gray-700">
+            Engineered a comprehensive Learning Management System with Django, streamlining course, student, and instructor management. The system increased process efficiency and provided intuitive user navigation.
+            <a href="https://github.com/sameeralam3127/lms-project" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 ml-1 font-medium">View on GitHub</a>
+          </p>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-gray-800">Dynamic Web App <span class="text-gray-500 text-base font-normal">(6 Months)</span></h3>
+          <p class="mt-2 text-gray-700">
+            Developed a fully responsive web application using Python, Django, HTML, and CSS. The site is hosted on GitHub Pages with automated deployments via GitHub Actions. Integrated RESTful APIs and utilized Postman for API testing.
+            <a href="https://github.com/sameeralam3127/lms-project" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 ml-1 font-medium">View on GitHub</a>
+          </p>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-gray-800">CI/CD Pipeline Automation <span class="text-gray-500 text-base font-normal">(4 Months)</span></h3>
+          <p class="mt-2 text-gray-700">
+            Engineered an automated CI/CD pipeline leveraging GitHub Actions, streamlining the development and deployment processes for various projects. This setup enhanced code integration and delivery efficiency.
+            <a href="https://github.com/sameeralam3127/Devops-automation" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 ml-1 font-medium">View on GitHub</a>
+          </p>
+        </div>
       </div>
     </section>
 
     <!-- Certifications -->
-    <section class="content-section" id="certifications" aria-labelledby="certifications-heading">
-      <h2 class="section-title" id="certifications-heading">Certifications</h2>
-      <div class="row g-3">
+    <section id="certifications" class="bg-white rounded-xl shadow-md p-6 mb-8 card-hover animate-fadeIn">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6 section-title">Certifications</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <!-- Always Visible Cards -->
-        <div class="col-md-6">
-          <div class="card certification-card">
-            <div class="card-body">
-              <h5 class="card-title">Monitor and Manage Google Cloud Resources Skill Badge</h5>
-              <p class="card-text mb-1"><strong>Issuer:</strong> Google</p>
-              <p class="card-text mb-1"><strong>Issued:</strong> Oct 2024</p>
-            </div>
-          </div>
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 card-hover">
+          <h5 class="font-semibold text-gray-800">Monitor and Manage Google Cloud Resources Skill Badge</h5>
+          <p class="text-sm text-gray-600 mt-2"><strong>Issuer:</strong> Google</p>
+          <p class="text-sm text-gray-600"><strong>Issued:</strong> Oct 2024</p>
         </div>
-        <div class="col-md-6">
-          <div class="card certification-card">
-            <div class="card-body">
-              <h5 class="card-title">The Basics of Google Cloud Compute Skill Badge</h5>
-              <p class="card-text mb-1"><strong>Issuer:</strong> Google</p>
-              <p class="card-text mb-1"><strong>Issued:</strong> Oct 2024</p>
-            </div>
-          </div>
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 card-hover">
+          <h5 class="font-semibold text-gray-800">The Basics of Google Cloud Compute Skill Badge</h5>
+          <p class="text-sm text-gray-600 mt-2"><strong>Issuer:</strong> Google</p>
+          <p class="text-sm text-gray-600"><strong>Issued:</strong> Oct 2024</p>
         </div>
         <!-- Hidden Certificate Cards -->
-        <div id="moreCerts" style="display: none; width: 100%;">
+        <div id="moreCerts" class="hidden col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- AWS Knowledge: Cloud Essentials -->
-          <div class="col-md-6">
-            <div class="card certification-card">
-              <div class="card-body">
-                <h5 class="card-title">AWS Knowledge: Cloud Essentials</h5>
-                <p class="card-text mb-1"><strong>Issuer:</strong> Amazon Web Services (AWS)</p>
-                <p class="card-text mb-1"><strong>Issued:</strong> Jan 2024</p>
-              </div>
-            </div>
+          <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 card-hover">
+            <h5 class="font-semibold text-gray-800">AWS Knowledge: Cloud Essentials</h5>
+            <p class="text-sm text-gray-600 mt-2"><strong>Issuer:</strong> Amazon Web Services (AWS)</p>
+            <p class="text-sm text-gray-600"><strong>Issued:</strong> Jan 2024</p>
           </div>
           <!-- AWS Knowledge: Architecting -->
-          <div class="col-md-6">
-            <div class="card certification-card">
-              <div class="card-body">
-                <h5 class="card-title">AWS Knowledge: Architecting</h5>
-                <p class="card-text mb-1"><strong>Issuer:</strong> Amazon Web Services (AWS)</p>
-                <p class="card-text mb-1"><strong>Issued:</strong> Oct 2023</p>
-              </div>
-            </div>
+          <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 card-hover">
+            <h5 class="font-semibold text-gray-800">AWS Knowledge: Architecting</h5>
+            <p class="text-sm text-gray-600 mt-2"><strong>Issuer:</strong> Amazon Web Services (AWS)</p>
+            <p class="text-sm text-gray-600"><strong>Issued:</strong> Oct 2023</p>
           </div>
           <!-- Pen Testing, Incident Response & Forensics -->
-          <div class="col-md-6">
-            <div class="card certification-card">
-              <div class="card-body">
-                <h5 class="card-title">Pen Testing, Incident Response & Forensics</h5>
-                <p class="card-text mb-1"><strong>Issuer:</strong> IBM</p>
-                <p class="card-text mb-1"><strong>Issued:</strong> Sep 2023</p>
-              </div>
-            </div>
+          <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 card-hover">
+            <h5 class="font-semibold text-gray-800">Pen Testing, Incident Response & Forensics</h5>
+            <p class="text-sm text-gray-600 mt-2"><strong>Issuer:</strong> IBM</p>
+            <p class="text-sm text-gray-600"><strong>Issued:</strong> Sep 2023</p>
           </div>
           <!-- Networking Essentials -->
-          <div class="col-md-6">
-            <div class="card certification-card">
-              <div class="card-body">
-                <h5 class="card-title">Networking Essentials</h5>
-                <p class="card-text mb-1"><strong>Issuer:</strong> Cisco</p>
-                <p class="card-text mb-1"><strong>Issued:</strong> Feb 2023</p>
-              </div>
-            </div>
+          <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 card-hover">
+            <h5 class="font-semibold text-gray-800">Networking Essentials</h5>
+            <p class="text-sm text-gray-600 mt-2"><strong>Issuer:</strong> Cisco</p>
+            <p class="text-sm text-gray-600"><strong>Issued:</strong> Feb 2023</p>
           </div>
           <!-- AWS Cloud Quest: Cloud Practitioner -->
-          <div class="col-md-6">
-            <div class="card certification-card">
-              <div class="card-body">
-                <h5 class="card-title">AWS Cloud Quest: Cloud Practitioner</h5>
-                <p class="card-text mb-1"><strong>Issuer:</strong> Amazon Web Services (AWS)</p>
-                <p class="card-text mb-1"><strong>Issued:</strong> Dec 2022</p>
-              </div>
-            </div>
+          <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 card-hover">
+            <h5 class="font-semibold text-gray-800">AWS Cloud Quest: Cloud Practitioner</h5>
+            <p class="text-sm text-gray-600 mt-2"><strong>Issuer:</strong> Amazon Web Services (AWS)</p>
+            <p class="text-sm text-gray-600"><strong>Issued:</strong> Dec 2022</p>
           </div>
           <!-- Docker Essentials: A Developer Introduction -->
-          <div class="col-md-6">
-            <div class="card certification-card">
-              <div class="card-body">
-                <h5 class="card-title">Docker Essentials: A Developer Introduction</h5>
-                <p class="card-text mb-1"><strong>Issuer:</strong> IBM</p>
-                <p class="card-text mb-1"><strong>Issued:</strong> Nov 2022</p>
-              </div>
-            </div>
+          <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 card-hover">
+            <h5 class="font-semibold text-gray-800">Docker Essentials: A Developer Introduction</h5>
+            <p class="text-sm text-gray-600 mt-2"><strong>Issuer:</strong> IBM</p>
+            <p class="text-sm text-gray-600"><strong>Issued:</strong> Nov 2022</p>
           </div>
           <!-- Cloud Core -->
-          <div class="col-md-6">
-            <div class="card certification-card">
-              <div class="card-body">
-                <h5 class="card-title">Cloud Core</h5>
-                <p class="card-text mb-1"><strong>Issuer:</strong> IBM</p>
-                <p class="card-text mb-1"><strong>Issued:</strong> Sep 2021</p>
-              </div>
-            </div>
+          <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 card-hover">
+            <h5 class="font-semibold text-gray-800">Cloud Core</h5>
+            <p class="text-sm text-gray-600 mt-2"><strong>Issuer:</strong> IBM</p>
+            <p class="text-sm text-gray-600"><strong>Issued:</strong> Sep 2021</p>
           </div>
           <!-- IBM Cloud Essentials -->
-          <div class="col-md-6">
-            <div class="card certification-card">
-              <div class="card-body">
-                <h5 class="card-title">IBM Cloud Essentials</h5>
-                <p class="card-text mb-1"><strong>Issuer:</strong> IBM</p>
-                <p class="card-text mb-1"><strong>Issued:</strong> Sep 2021</p>
-              </div>
-            </div>
+          <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 card-hover">
+            <h5 class="font-semibold text-gray-800">IBM Cloud Essentials</h5>
+            <p class="text-sm text-gray-600 mt-2"><strong>Issuer:</strong> IBM</p>
+            <p class="text-sm text-gray-600"><strong>Issued:</strong> Sep 2021</p>
           </div>
           <!-- Cybersecurity Essentials -->
-          <div class="col-md-6">
-            <div class="card certification-card">
-              <div class="card-body">
-                <h5 class="card-title">Cybersecurity Essentials</h5>
-                <p class="card-text mb-1"><strong>Issuer:</strong> Cisco</p>
-                <p class="card-text mb-1"><strong>Issued:</strong> Nov 2020</p>
-              </div>
-            </div>
+          <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 card-hover">
+            <h5 class="font-semibold text-gray-800">Cybersecurity Essentials</h5>
+            <p class="text-sm text-gray-600 mt-2"><strong>Issuer:</strong> Cisco</p>
+            <p class="text-sm text-gray-600"><strong>Issued:</strong> Nov 2020</p>
           </div>
           <!-- Introduction to Cybersecurity -->
-          <div class="col-md-6">
-            <div class="card certification-card">
-              <div class="card-body">
-                <h5 class="card-title">Introduction to Cybersecurity</h5>
-                <p class="card-text mb-1"><strong>Issuer:</strong> Cisco</p>
-                <p class="card-text mb-1"><strong>Issued:</strong> Nov 2020</p>
-              </div>
-            </div>
+          <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 card-hover">
+            <h5 class="font-semibold text-gray-800">Introduction to Cybersecurity</h5>
+            <p class="text-sm text-gray-600 mt-2"><strong>Issuer:</strong> Cisco</p>
+            <p class="text-sm text-gray-600"><strong>Issued:</strong> Nov 2020</p>
           </div>
           <!-- Apsara Clouder Certification -->
-          <div class="col-md-6">
-            <div class="card certification-card">
-              <div class="card-body">
-                <h5 class="card-title">Apsara Clouder - Cloud Computing Specialist Certification</h5>
-                <p class="card-text mb-1"><strong>Issuer:</strong> Alibaba Cloud</p>
-                <p class="card-text mb-1"><strong>Issued:</strong> Oct 2020 · Expired Oct 2022</p>
-                <p class="card-text mb-1"><strong>Credential ID:</strong> ACLC03201000037934</p>
-              </div>
-            </div>
+          <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 card-hover">
+            <h5 class="font-semibold text-gray-800">Apsara Clouder - Cloud Computing Specialist Certification</h5>
+            <p class="text-sm text-gray-600 mt-2"><strong>Issuer:</strong> Alibaba Cloud</p>
+            <p class="text-sm text-gray-600"><strong>Issued:</strong> Oct 2020 · Expired Oct 2022</p>
+            <p class="text-sm text-gray-600"><strong>Credential ID:</strong> ACLC03201000037934</p>
           </div>
           <!-- CyberArk Certified Level 1: Trustee Exam -->
-          <div class="col-md-6">
-            <div class="card certification-card">
-              <div class="card-body">
-                <h5 class="card-title">CyberArk Certified Level 1: Trustee Exam</h5>
-                <p class="card-text mb-1"><strong>Issuer:</strong> CyberArk</p>
-                <p class="card-text mb-1"><strong>Issued:</strong> Oct 2020</p>
-                <p class="card-text mb-1"><strong>Credential ID:</strong> b0d6c042-88a7-3635-874b-8eb3ee3d5544</p>
-              </div>
-            </div>
+          <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 card-hover">
+            <h5 class="font-semibold text-gray-800">CyberArk Certified Level 1: Trustee Exam</h5>
+            <p class="text-sm text-gray-600 mt-2"><strong>Issuer:</strong> CyberArk</p>
+            <p class="text-sm text-gray-600"><strong>Issued:</strong> Oct 2020</p>
+            <p class="text-sm text-gray-600"><strong>Credential ID:</strong> b0d6c042-88a7-3635-874b-8eb3ee3d5544</p>
           </div>
           <!-- CEFR level B1 -->
-          <div class="col-md-6">
-            <div class="card certification-card">
-              <div class="card-body">
-                <h5 class="card-title">CEFR level B1</h5>
-                <p class="card-text mb-1"><strong>Issuer:</strong> British Council</p>
-                <p class="card-text mb-1"><strong>Issued:</strong> Jun 2020 · Expired Jun 2021</p>
-                <p class="card-text mb-1"><strong>Credential ID:</strong> f04f98c2</p>
-              </div>
-            </div>
+          <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 card-hover">
+            <h5 class="font-semibold text-gray-800">CEFR level B1</h5>
+            <p class="text-sm text-gray-600 mt-2"><strong>Issuer:</strong> British Council</p>
+            <p class="text-sm text-gray-600"><strong>Issued:</strong> Jun 2020 · Expired Jun 2021</p>
+            <p class="text-sm text-gray-600"><strong>Credential ID:</strong> f04f98c2</p>
           </div>
           <!-- Digital Marketing -->
-          <div class="col-md-6">
-            <div class="card certification-card">
-              <div class="card-body">
-                <h5 class="card-title">Digital Marketing</h5>
-                <p class="card-text mb-1"><strong>Issuer:</strong> Accenture</p>
-                <p class="card-text mb-1"><strong>Issued:</strong> Jun 2020</p>
-                <p class="card-text mb-1"><strong>Credential ID:</strong> 9bhznd3</p>
-              </div>
-            </div>
+          <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 card-hover">
+            <h5 class="font-semibold text-gray-800">Digital Marketing</h5>
+            <p class="text-sm text-gray-600 mt-2"><strong>Issuer:</strong> Accenture</p>
+            <p class="text-sm text-gray-600"><strong>Issued:</strong> Jun 2020</p>
+            <p class="text-sm text-gray-600"><strong>Credential ID:</strong> 9bhznd3</p>
           </div>
           <!-- NSE-1 Network Security Associate -->
-          <div class="col-md-6">
-            <div class="card certification-card">
-              <div class="card-body">
-                <h5 class="card-title">NSE-1 Network Security Associate</h5>
-                <p class="card-text mb-1"><strong>Issuer:</strong> Fortinet</p>
-                <p class="card-text mb-1"><strong>Issued:</strong> May 2020 · Expired May 2022</p>
-                <p class="card-text mb-1"><strong>Credential ID:</strong> i5NVhiBGEi</p>
-              </div>
-            </div>
+          <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 card-hover">
+            <h5 class="font-semibold text-gray-800">NSE-1 Network Security Associate</h5>
+            <p class="text-sm text-gray-600 mt-2"><strong>Issuer:</strong> Fortinet</p>
+            <p class="text-sm text-gray-600"><strong>Issued:</strong> May 2020 · Expired May 2022</p>
+            <p class="text-sm text-gray-600"><strong>Credential ID:</strong> i5NVhiBGEi</p>
           </div>
           <!-- NSE-2 Network Security Associate -->
-          <div class="col-md-6">
-            <div class="card certification-card">
-              <div class="card-body">
-                <h5 class="card-title">NSE-2 Network Security Associate</h5>
-                <p class="card-text mb-1"><strong>Issuer:</strong> Fortinet</p>
-                <p class="card-text mb-1"><strong>Issued:</strong> May 2020 · Expired May 2022</p>
-                <p class="card-text mb-1"><strong>Credential ID:</strong> v8EpvoHmls</p>
-              </div>
-            </div>
+          <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 card-hover">
+            <h5 class="font-semibold text-gray-800">NSE-2 Network Security Associate</h5>
+            <p class="text-sm text-gray-600 mt-2"><strong>Issuer:</strong> Fortinet</p>
+            <p class="text-sm text-gray-600"><strong>Issued:</strong> May 2020 · Expired May 2022</p>
+            <p class="text-sm text-gray-600"><strong>Credential ID:</strong> v8EpvoHmls</p>
           </div>
           <!-- Security Certified Network Specialist (SCNS) -->
-          <div class="col-md-6">
-            <div class="card certification-card">
-              <div class="card-body">
-                <h5 class="card-title">Security Certified Network Specialist (SCNS)</h5>
-                <p class="card-text mb-1"><strong>Issuer:</strong> DefensityOne</p>
-                <p class="card-text mb-1"><strong>Issued:</strong> May 2020</p>
-                <p class="card-text mb-1"><strong>Credential ID:</strong> 17679494</p>
-              </div>
-            </div>
+          <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 card-hover">
+            <h5 class="font-semibold text-gray-800">Security Certified Network Specialist (SCNS)</h5>
+            <p class="text-sm text-gray-600 mt-2"><strong>Issuer:</strong> DefensityOne</p>
+            <p class="text-sm text-gray-600"><strong>Issued:</strong> May 2020</p>
+            <p class="text-sm text-gray-600"><strong>Credential ID:</strong> 17679494</p>
           </div>
           <!-- AWS Solutions Architect Associate -->
-          <div class="col-md-6">
-            <div class="card certification-card">
-              <div class="card-body">
-                <h5 class="card-title">Amazon Web Services Solutions Architect Associate</h5>
-                <p class="card-text mb-1"><strong>Issuer:</strong> Udemy</p>
-                <p class="card-text mb-1"><strong>Issued:</strong> Apr 2020</p>
-              </div>
-            </div>
+          <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 card-hover">
+            <h5 class="font-semibold text-gray-800">Amazon Web Services Solutions Architect Associate</h5>
+            <p class="text-sm text-gray-600 mt-2"><strong>Issuer:</strong> Udemy</p>
+            <p class="text-sm text-gray-600"><strong>Issued:</strong> Apr 2020</p>
           </div>
           <!-- Masters of Network Administrations-MNA -->
-          <div class="col-md-6">
-            <div class="card certification-card">
-              <div class="card-body">
-                <h5 class="card-title">Masters of Network Administrations-MNA</h5>
-                <p class="card-text mb-1"><strong>Issuer:</strong> Jetking Infotrain Limited</p>
-                <p class="card-text mb-1"><strong>Issued:</strong> Apr 2018</p>
-                <p class="card-text mb-1"><strong>Credential ID:</strong> JK-DE-CT-00378</p>
-              </div>
-            </div>
+          <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 card-hover">
+            <h5 class="font-semibold text-gray-800">Masters of Network Administrations-MNA</h5>
+            <p class="text-sm text-gray-600 mt-2"><strong>Issuer:</strong> Jetking Infotrain Limited</p>
+            <p class="text-sm text-gray-600"><strong>Issued:</strong> Apr 2018</p>
+            <p class="text-sm text-gray-600"><strong>Credential ID:</strong> JK-DE-CT-00378</p>
           </div>
           <!-- C Programming -->
-          <div class="col-md-6">
-            <div class="card certification-card">
-              <div class="card-body">
-                <h5 class="card-title">C Programming</h5>
-                <p class="card-text mb-1"><strong>Issuer:</strong> Spoken Tutorial, IIT Bombay</p>
-                <p class="card-text mb-1"><strong>Issued:</strong> May 2016</p>
-                <p class="card-text mb-1"><strong>Credential ID:</strong> 610884EDMJ</p>
-              </div>
-            </div>
+          <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 card-hover">
+            <h5 class="font-semibold text-gray-800">C Programming</h5>
+            <p class="text-sm text-gray-600 mt-2"><strong>Issuer:</strong> Spoken Tutorial, IIT Bombay</p>
+            <p class="text-sm text-gray-600"><strong>Issued:</strong> May 2016</p>
+            <p class="text-sm text-gray-600"><strong>Credential ID:</strong> 610884EDMJ</p>
           </div>
         </div>
       </div>
       <!-- Toggle Button -->
-      <div class="text-center mt-3">
-        <button class="btn btn-primary" id="toggleCerts">Show More</button>
+      <div class="text-center mt-6">
+        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors" id="toggleCerts">Show More</button>
       </div>
     </section>
     
     <!-- Contact & Social -->
-    <section class="content-section" id="contact" aria-labelledby="contact-heading">
-      <h2 class="section-title" id="contact-heading">Contact &amp; Social</h2>
-      <p><strong>Location:</strong> Bengaluru, India</p>
-      <p><strong>Languages:</strong> English, Hindi</p>
-      <p>
-        <strong>Phone:</strong> 
-        <a href="tel:+919905850877" aria-label="Call Sameer Alam">
-          <i class="bi bi-telephone"></i> +91 9905850877
-        </a>
-      </p>
-      <p>
-        <strong>Email:</strong> 
-        <a href="mailto:sameeralam3127@gmail.com" aria-label="Send an email to Sameer Alam">
-          <i class="bi bi-envelope"></i> sameeralam3127@gmail.com
-        </a>
-      </p>
-      <p>
-        <strong>GitHub:</strong> 
-        <a href="https://github.com/sameeralam3127" target="_blank" rel="noopener noreferrer" aria-label="Visit Sameer Alam's GitHub">
-          <i class="bi bi-github"></i> sameeralam3127
-        </a>
-      </p>
-      <p>
-        <strong>LinkedIn:</strong> 
-        <a href="https://www.linkedin.com/in/sameer-alam-9a0162111/" target="_blank" rel="noopener noreferrer" aria-label="Visit Sameer Alam's LinkedIn">
-          <i class="bi bi-linkedin"></i> Sameer Alam
-        </a>
-      </p>
-      <p>
-        <strong>Website:</strong> 
-        <a href="https://www.computecentral.in/" target="_blank" rel="noopener noreferrer" aria-label="Visit Sameer Alam's Website">
-          <i class="bi bi-globe"></i> computecentral.in
-        </a>
-      </p>
+    <section id="contact" class="bg-white rounded-xl shadow-md p-6 mb-8 card-hover animate-fadeIn">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6 section-title">Contact &amp; Social</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <p class="text-gray-700 mb-3"><strong class="font-semibold">Location:</strong> Bengaluru, India</p>
+          <p class="text-gray-700 mb-3"><strong class="font-semibold">Languages:</strong> English, Hindi</p>
+          <p class="text-gray-700 mb-3">
+            <strong class="font-semibold">Phone:</strong> 
+            <a href="tel:+919905850877" class="text-blue-600 hover:text-blue-800 ml-1">
+              <i class="bi bi-telephone mr-1"></i> +91 99XXXX0877
+            </a>
+          </p>
+        </div>
+        <div>
+          <p class="text-gray-700 mb-3">
+            <strong class="font-semibold">Email:</strong> 
+            <a href="mailto:sameeralam3127@gmail.com" class="text-blue-600 hover:text-blue-800 ml-1">
+              <i class="bi bi-envelope mr-1"></i> sameeralam3127@gmail.com
+            </a>
+          </p>
+          <p class="text-gray-700 mb-3">
+            <strong class="font-semibold">GitHub:</strong> 
+            <a href="https://github.com/sameeralam3127" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 ml-1">
+              <i class="bi bi-github mr-1"></i> sameeralam3127
+            </a>
+          </p>
+          <p class="text-gray-700 mb-3">
+            <strong class="font-semibold">LinkedIn:</strong> 
+            <a href="https://www.linkedin.com/in/sameer-alam-9a0162111/" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 ml-1">
+              <i class="bi bi-linkedin mr-1"></i> Sameer Alam
+            </a>
+          </p>
+          <p class="text-gray-700">
+            <strong class="font-semibold">Website:</strong> 
+            <a href="https://www.computecentral.in/" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 ml-1">
+              <i class="bi bi-globe mr-1"></i> computecentral.in
+            </a>
+          </p>
+        </div>
+      </div>
     </section>
   </main>
 
   <!-- Back-to-Top Button -->
-  <button id="backToTop" title="Back to Top" aria-label="Scroll back to top">&#8679;</button>
+  <button id="backToTop" class="fixed bottom-6 right-6 bg-blue-600 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg hover:bg-blue-700 transition-colors hidden" aria-label="Scroll back to top">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+    </svg>
+  </button>
 
   <!-- Footer -->
-  <footer>
-    <div class="container">
-      <p>&copy; 2025 Sameer Alam. All rights reserved.</p>
+  <footer class="bg-gray-100 py-6 mt-8">
+    <div class="container mx-auto px-4 text-center">
+      <p class="text-gray-600">&copy; 2025 Sameer Alam. All rights reserved.</p>
     </div>
   </footer>
 
-  <!-- Bootstrap JS Bundle -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <!-- Custom JS for Back-to-Top -->
+  <!-- Custom JS -->
   <script>
+    // Back to top functionality
     const backToTopBtn = document.getElementById('backToTop');
     window.addEventListener('scroll', () => {
       backToTopBtn.style.display = window.pageYOffset > 300 ? 'flex' : 'none';
@@ -646,19 +504,25 @@
     backToTopBtn.addEventListener('click', () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
-  </script>
-  <!-- Toggle Certifications JS -->
-  <script>
+
+    // Toggle certifications functionality
     document.getElementById('toggleCerts').addEventListener('click', function() {
-      var moreCerts = document.getElementById('moreCerts');
-      if (moreCerts.style.display === 'none' || moreCerts.style.display === '') {
-        moreCerts.style.display = 'flex';
-        moreCerts.style.flexWrap = 'wrap';
+      const moreCerts = document.getElementById('moreCerts');
+      if (moreCerts.classList.contains('hidden')) {
+        moreCerts.classList.remove('hidden');
         this.textContent = 'Show Less';
       } else {
-        moreCerts.style.display = 'none';
+        moreCerts.classList.add('hidden');
         this.textContent = 'Show More';
       }
+    });
+
+    // Mobile menu functionality
+    const mobileMenuButton = document.getElementById('mobileMenuButton');
+    const mobileMenu = document.getElementById('mobileMenu');
+    
+    mobileMenuButton.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
     });
   </script>
 </body>
