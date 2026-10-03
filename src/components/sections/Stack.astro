@@ -1,0 +1,30 @@
+---
+import Panel from "@/components/ui/Panel.astro";
+import SectionHeading from "@/components/ui/SectionHeading.astro";
+import { profile } from "@/data/profile";
+---
+
+<section aria-labelledby="stack" class="mx-auto max-w-6xl px-4 pt-24 sm:px-6" data-reveal>
+  <SectionHeading
+    id="stack"
+    command="kubectl get skills --all-namespaces"
+    title="Stack"
+    lede="What I use to build, ship, observe and secure systems."
+  />
+
+  <ul class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    {profile.skills.map((group) => (
+      <Panel as="li" title={`ns/${group.id}`}>
+        <span slot="meta">{group.items.length}</span>
+        <h3 class="text-sm font-medium text-text">{group.title}</h3>
+        <ul class="mt-3 flex flex-wrap gap-1.5">
+          {group.items.map((item) => (
+            <li class="rounded border border-line bg-panel-2 px-2 py-0.5 font-mono text-xs text-muted">
+              {item}
+            </li>
+          ))}
+        </ul>
+      </Panel>
+    ))}
+  </ul>
+</section>

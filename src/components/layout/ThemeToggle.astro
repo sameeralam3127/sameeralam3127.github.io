@@ -1,0 +1,27 @@
+---
+import Icon from "@/components/ui/Icon.astro";
+---
+
+<button
+  type="button"
+  data-theme-toggle
+  class="inline-flex h-9 w-9 items-center justify-center rounded border border-line text-muted transition-colors hover:border-line-strong hover:text-text"
+  aria-label="Switch to light theme"
+>
+  <Icon name="sun" class="theme-icon-sun" />
+  <Icon name="moon" class="theme-icon-moon" />
+</button>
+
+<style>
+  /* Global: the icons are rendered by Icon.astro, outside this component's scope. */
+  :global([data-theme="dark"] .theme-icon-moon),
+  :global([data-theme="light"] .theme-icon-sun) {
+    display: none;
+  }
+</style>
+
+<script>
+  import { initThemeToggles } from "@/lib/theme";
+
+  initThemeToggles();
+</script>

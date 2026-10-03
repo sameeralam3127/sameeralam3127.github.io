@@ -1,0 +1,53 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Panel from "@/components/ui/Panel.astro";
+import StatusDot from "@/components/ui/StatusDot.astro";
+import { navigation } from "@/data/navigation";
+import { profile } from "@/data/profile";
+---
+
+<BaseLayout title={`404 — ${profile.name}`} description="Page not found." bare>
+  <div class="mx-auto flex min-h-dvh max-w-2xl flex-col justify-center px-4 py-16 sm:px-6">
+    <Panel title="~ — zsh" bodyClass="p-0">
+      <span slot="meta" class="inline-flex items-center gap-1.5 text-crit">
+        <StatusDot state="crit" />
+        exit 1
+      </span>
+      <div class="p-4 font-mono text-[13px] leading-relaxed sm:p-5">
+        <p>
+          <span class="text-ok">$</span> cd{" "}
+          <span class="text-info" data-path>
+            this-page
+          </span>
+        </p>
+        <p class="text-crit">cd: no such file or directory</p>
+        <h1 class="mt-4 text-text">404 — page not found</h1>
+        <p class="mt-1 text-muted">The page moved, or never existed. Try one of these:</p>
+        <ul class="mt-4 space-y-1">
+          <li>
+            <a href="/" class="link">
+              cd ~
+            </a>
+            <span class="text-muted"> # home</span>
+          </li>
+          {navigation.map((item) => (
+            <li>
+              <a href={item.href} class="link">
+                cd ~/{item.label.toLowerCase()}
+              </a>
+            </li>
+          ))}
+        </ul>
+        <p class="mt-4">
+          <span class="text-ok">$</span> <span class="cursor" aria-hidden="true"></span>
+        </p>
+      </div>
+    </Panel>
+  </div>
+</BaseLayout>
+
+<script>
+  // Echo the missing path back like a real shell would.
+  const target = document.querySelector<HTMLElement>("[data-path]");
+  if (target) target.textContent = decodeURIComponent(window.location.pathname);
+</script>

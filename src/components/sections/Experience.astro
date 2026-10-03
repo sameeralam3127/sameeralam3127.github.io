@@ -1,0 +1,56 @@
+---
+import Panel from "@/components/ui/Panel.astro";
+import SectionHeading from "@/components/ui/SectionHeading.astro";
+import StatusDot from "@/components/ui/StatusDot.astro";
+import { profile } from "@/data/profile";
+---
+
+<section aria-labelledby="experience" class="mx-auto max-w-6xl px-4 pt-24 sm:px-6" data-reveal>
+  <SectionHeading
+    id="experience"
+    command="git log --oneline career"
+    title="Experience"
+    lede={`${profile.yearsExperience} years across enterprise support, systems engineering and infrastructure automation.`}
+  />
+
+  <div class="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+    <ol class="relative space-y-8 border-l border-line pl-6 sm:pl-8">
+      {profile.experience.map((role, index) => (
+        <li class="relative">
+          <span class="absolute top-1.5 -left-[calc(1.5rem+4.5px)] sm:-left-[calc(2rem+4.5px)]">
+            <StatusDot state={index === 0 ? "ok" : "idle"} pulse={index === 0} />
+          </span>
+          <p class="font-mono text-xs text-muted">
+            {role.start} → {role.end ?? <span class="text-ok">present</span>}
+          </p>
+          <h3 class="mt-1 text-lg font-semibold text-text">
+            {role.title} <span class="text-muted">·</span>{" "}
+            <span class="text-accent">{role.company}</span>
+          </h3>
+          <ul class="mt-3 space-y-1.5 text-sm leading-relaxed text-muted">
+            {role.highlights.map((highlight) => (
+              <li class="flex gap-2">
+                <span class="font-mono text-line-strong" aria-hidden="true">
+                  ›
+                </span>
+                <span>{highlight}</span>
+              </li>
+            ))}
+          </ul>
+        </li>
+      ))}
+    </ol>
+
+    <Panel title="education" class="self-start">
+      <ul class="space-y-4">
+        {profile.education.map((item) => (
+          <li>
+            <p class="font-mono text-xs text-muted">{item.year}</p>
+            <p class="text-sm font-medium text-text">{item.degree}</p>
+            <p class="text-sm text-muted">{item.institution}</p>
+          </li>
+        ))}
+      </ul>
+    </Panel>
+  </div>
+</section>

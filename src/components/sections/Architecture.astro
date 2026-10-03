@@ -1,0 +1,15 @@
+---
+import ArchitectureDiagram from "@/components/diagram/ArchitectureDiagram.astro";
+import SectionHeading from "@/components/ui/SectionHeading.astro";
+import { sitePipeline } from "@/data/architecture";
+---
+
+<section aria-labelledby="architecture" class="mx-auto max-w-6xl px-4 pt-24 sm:px-6" data-reveal>
+  <SectionHeading
+    id="architecture"
+    command="cat .github/workflows/*.yml | less"
+    title="How this site ships"
+    lede="The site is its own case study: every change goes through the same gates I'd put in front of production. Select a step to see what it does."
+  />
+  <ArchitectureDiagram diagram={sitePipeline} />
+</section>

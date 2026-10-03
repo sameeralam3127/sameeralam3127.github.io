@@ -1,0 +1,23 @@
+---
+import StatusDot from "@/components/ui/StatusDot.astro";
+import { profile } from "@/data/profile";
+
+const year = new Date().getFullYear();
+---
+
+<footer class="mt-24 border-t border-line">
+  <div class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-6 font-mono text-xs text-muted sm:flex-row sm:items-center sm:justify-between sm:px-6">
+    <p class="flex items-center gap-2">
+      <StatusDot state="ok" />
+      <span>
+        © {year} {profile.name}
+      </span>
+    </p>
+    <p>
+      Built with Astro · deployed by GitHub Actions ·
+      <a href={profile.site.repo} class="link">
+        view source
+      </a>
+    </p>
+  </div>
+</footer>

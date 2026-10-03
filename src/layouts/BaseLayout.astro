@@ -1,0 +1,100 @@
+---
+import "@fontsource-variable/ibm-plex-sans";
+import "@fontsource-variable/jetbrains-mono";
+import "@/styles/global.css";
+
+import SiteHeader from "@/components/layout/SiteHeader.astro";
+import SiteFooter from "@/components/layout/SiteFooter.astro";
+import CommandPalette from "@/components/islands/CommandPalette";
+import { profile } from "@/data/profile";
+import { getDeepDiveSlugs } from "@/lib/deep-dives";
+import { buildPaletteItems } from "@/lib/palette-items";
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Hide the header/footer chrome (used by the 404 page). */
+  bare?: boolean;
+}
+
+const {
+  title = `${profile.name} — ${profile.title}`,
+  description = profile.site.description,
+  bare = false,
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site ?? profile.site.url).href;
+const paletteItems = buildPaletteItems(await getDeepDiveSlugs());
+---
+
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content={profile.name} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#111217" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f4f6f8" media="(prefers-color-scheme: light)" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!--
+      Runs before first paint: applies the saved theme (dark by default) and
+      marks JS as available so reveal animations never hide content without it.
+    -->
+    <script is:inline>
+      (() => {
+        const root = document.documentElement;
+        root.classList.add("js");
+        let theme = "dark";
+        try {
+          const saved = localStorage.getItem("theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {
+          /* storage unavailable: keep the default */
+        }
+        root.dataset.theme = theme;
+      })();
+    </script>
+  </head>
+  <body class="flex min-h-dvh flex-col antialiased">
+    <a
+      href="#main"
+      class="sr-only z-[70] rounded bg-accent px-3 py-2 font-mono text-sm text-accent-ink focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+    >
+      Skip to content
+    </a>
+    {!bare && <SiteHeader />}
+    <main id="main" tabindex="-1" class="flex-1 focus:outline-none">
+      <slot />
+    </main>
+    {!bare && <SiteFooter />}
+    <CommandPalette client:idle items={paletteItems} email={profile.contact.email} />
+
+    <script>
+      // Reveal sections as they scroll into view. Skipped entirely when the
+      // visitor prefers reduced motion (CSS already shows everything).
+      const targets = document.querySelectorAll<HTMLElement>("[data-reveal]");
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (reduce || !("IntersectionObserver" in window)) {
+        targets.forEach((el) => el.classList.add("is-visible"));
+      } else {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("is-visible");
+                io.unobserve(entry.target);
+              }
+            }
+          },
+          { rootMargin: "0px 0px -10% 0px" },
+        );
+        targets.forEach((el) => io.observe(el));
+      }
+    </script>
+  </body>
+</html>

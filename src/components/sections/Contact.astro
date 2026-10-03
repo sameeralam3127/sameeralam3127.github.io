@@ -1,0 +1,52 @@
+---
+import Icon from "@/components/ui/Icon.astro";
+import Panel from "@/components/ui/Panel.astro";
+import SectionHeading from "@/components/ui/SectionHeading.astro";
+import { profile } from "@/data/profile";
+
+const { contact } = profile;
+---
+
+<section aria-labelledby="contact" class="mx-auto max-w-6xl px-4 pt-24 sm:px-6" data-reveal>
+  <SectionHeading
+    id="contact"
+    command="ansible-playbook hire-me.yml"
+    title="Contact"
+    lede="Questions about a project, a guide I wrote, or infrastructure and security work. Email is the fastest route."
+  />
+
+  <Panel title="TASK [contact : reach out]" bodyClass="p-0">
+    <span slot="meta" class="text-ok">
+      ok=1 changed=0 failed=0
+    </span>
+    <ul class="divide-y divide-line">
+      <li>
+        <a
+          href={`mailto:${contact.email}`}
+          class="group flex items-center gap-4 px-4 py-4 hover:bg-panel-2 sm:px-5"
+        >
+          <Icon name="mail" size={18} class="text-accent" />
+          <span class="w-24 font-mono text-xs text-muted">email</span>
+          <span class="min-w-0 truncate font-mono text-sm text-text group-hover:text-accent">
+            {contact.email}
+          </span>
+        </a>
+      </li>
+      {contact.social.map((link) => (
+        <li>
+          <a
+            href={link.href}
+            rel="noopener me"
+            class="group flex items-center gap-4 px-4 py-4 hover:bg-panel-2 sm:px-5"
+          >
+            <Icon name={link.icon} size={18} class="text-accent" />
+            <span class="w-24 font-mono text-xs text-muted">{link.label.toLowerCase()}</span>
+            <span class="min-w-0 truncate font-mono text-sm text-text group-hover:text-accent">
+              {link.handle}
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </Panel>
+</section>

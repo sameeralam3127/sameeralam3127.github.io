@@ -1,0 +1,230 @@
+---
+import { getCollection, render } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import ArchitectureDiagram from "@/components/diagram/ArchitectureDiagram.astro";
+import Icon from "@/components/ui/Icon.astro";
+import RichText from "@/components/ui/RichText.astro";
+import StatusDot from "@/components/ui/StatusDot.astro";
+import Tag from "@/components/ui/Tag.astro";
+import { profile, repoUrl } from "@/data/profile";
+import { timeAgo } from "@/lib/format";
+import { repoStats } from "@/lib/site-data";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("projects");
+  const ordered = profile.projects.filter((p) => entries.some((e) => e.id === p.slug));
+  return entries.map((entry) => {
+    const project = profile.projects.find((p) => p.slug === entry.id);
+    if (!project) {
+      throw new Error(`src/content/projects/${entry.id}.md has no matching project in profile.ts`);
+    }
+    const index = ordered.findIndex((p) => p.slug === entry.id);
+    return {
+      params: { slug: entry.id },
+      props: {
+        entry,
+        project,
+        prev: ordered[index - 1] ?? null,
+        next: ordered[index + 1] ?? null,
+      },
+    };
+  });
+}
+
+const { entry, project, prev, next } = Astro.props;
+const { Content } = await render(entry);
+const stats = project.repoPublic ? repoStats(project.repo) : undefined;
+const links = [
+  ...(project.repoPublic ? [{ label: "Source", href: repoUrl(project.repo) }] : []),
+  ...(project.links ?? []),
+];
+const hasBody = entry.body?.trim().length;
+---
+
+<BaseLayout
+  title={`${project.name} — ${project.tagline} · ${profile.name}`}
+  description={`${project.name}: ${project.description}`}
+>
+  <article class="mx-auto max-w-4xl px-4 pt-10 sm:px-6 sm:pt-14">
+    <nav aria-label="Breadcrumb" class="font-mono text-xs text-muted">
+      <ol class="flex flex-wrap items-center">
+        <li class="flex">
+          <a href="/" class="hover:text-accent">
+            ~
+          </a>
+          <span aria-hidden="true">/</span>
+        </li>
+        <li class="flex">
+          <a href="/#projects" class="hover:text-accent">
+            projects
+          </a>
+          <span aria-hidden="true">/</span>
+        </li>
+        <li aria-current="page" class="text-text">
+          {project.slug}
+        </li>
+      </ol>
+    </nav>
+
+    <header class="mt-6 border-b border-line pb-8">
+      <p class="flex items-center gap-2 font-mono text-xs text-muted">
+        <StatusDot
+          state={
+            project.status === "in-progress"
+              ? "warn"
+              : project.status === "rebuilding"
+                ? "info"
+                : "ok"
+          }
+        />
+        {project.statusNote ?? project.status}
+      </p>
+      <h1 class="mt-3 text-3xl font-semibold tracking-tight text-text sm:text-4xl">
+        {project.name}
+      </h1>
+      <p class="mt-2 font-mono text-accent">{project.tagline}</p>
+      <p class="mt-4 max-w-2xl text-lg leading-relaxed text-muted">{project.description}</p>
+
+      <ul class="mt-5 flex flex-wrap gap-1.5" aria-label="Stack">
+        {project.stack.map((item) => (
+          <li>
+            <Tag>{item}</Tag>
+          </li>
+        ))}
+      </ul>
+
+      <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3 font-mono text-xs">
+        {links.map((link) => (
+          <a href={link.href} class="link inline-flex items-center gap-1" rel="noopener">
+            {link.label} <Icon name="external" size={12} />
+          </a>
+        ))}
+        {stats && (
+          <span class="text-muted">
+            ★ <span class="text-text">{stats.stars}</span> · forks{" "}
+            <span class="text-text">{stats.forks}</span>
+            {stats.lastCommitAt && (
+              <>
+                {" "}
+                · last commit <span class="text-text">{timeAgo(stats.lastCommitAt)}</span>
+              </>
+            )}
+          </span>
+        )}
+        {!project.repoPublic && <span class="text-muted">repository is private</span>}
+      </div>
+    </header>
+
+    <section aria-labelledby="problem" class="mt-10">
+      <h2 id="problem" class="font-mono text-sm text-muted">
+        <span class="text-ok">01</span> problem
+      </h2>
+      <p class="mt-3 text-lg leading-relaxed text-text">
+        <RichText text={entry.data.problem} />
+      </p>
+    </section>
+
+    <section aria-labelledby="approach" class="mt-12">
+      <h2 id="approach" class="font-mono text-sm text-muted">
+        <span class="text-ok">02</span> approach
+      </h2>
+      <ol class="mt-4 space-y-3">
+        {entry.data.approach.map((item, i) => (
+          <li class="flex gap-3 leading-relaxed text-muted">
+            <span class="mt-0.5 font-mono text-xs text-accent">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <span>
+              <RichText text={item} />
+            </span>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <section aria-labelledby="architecture" class="mt-12">
+      <h2 id="architecture" class="mb-4 font-mono text-sm text-muted">
+        <span class="text-ok">03</span> architecture
+      </h2>
+      <ArchitectureDiagram diagram={{ id: `${project.slug}-arch`, ...entry.data.diagram }} />
+    </section>
+
+    {hasBody && (
+      <section class="dive-prose mt-12" aria-label="In practice">
+        <Content />
+      </section>
+    )}
+
+    <section aria-labelledby="outcome" class="mt-12">
+      <h2 id="outcome" class="font-mono text-sm text-muted">
+        <span class="text-ok">{hasBody ? "05" : "04"}</span> outcome
+      </h2>
+      <ul class="mt-4 space-y-3">
+        {entry.data.outcome.map((item) => (
+          <li class="flex gap-3 leading-relaxed text-text">
+            <span class="font-mono text-ok" aria-hidden="true">
+              ✓
+            </span>
+            <span>
+              <RichText text={item} />
+            </span>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <nav
+      aria-label="More projects"
+      class="mt-16 grid grid-cols-1 gap-3 border-t border-line pt-6 sm:grid-cols-2"
+    >
+      {prev ? (
+        <a href={`/projects/${prev.slug}/`} class="panel p-4 hover:border-line-strong">
+          <span class="font-mono text-xs text-muted">← previous</span>
+          <span class="mt-1 block font-medium text-text">{prev.name}</span>
+        </a>
+      ) : (
+        <span />
+      )}
+      {next && (
+        <a href={`/projects/${next.slug}/`} class="panel p-4 text-right hover:border-line-strong">
+          <span class="font-mono text-xs text-muted">next →</span>
+          <span class="mt-1 block font-medium text-text">{next.name}</span>
+        </a>
+      )}
+    </nav>
+  </article>
+</BaseLayout>
+
+<style>
+  .dive-prose :global(h2) {
+    text-transform: lowercase;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--c-muted);
+    margin-bottom: 1rem;
+  }
+  .dive-prose :global(h2)::before {
+    content: "04 ";
+    color: var(--c-ok);
+  }
+  .dive-prose :global(p) {
+    color: var(--c-muted);
+    line-height: 1.7;
+    margin: 1.25rem 0 0.75rem;
+  }
+  .dive-prose :global(p code) {
+    font-size: 0.85em;
+    background: var(--c-panel-2);
+    color: var(--c-text);
+    border-radius: 4px;
+    padding: 0.1rem 0.3rem;
+  }
+  .dive-prose :global(pre) {
+    border: 1px solid var(--c-line);
+    border-radius: 6px;
+    padding: 1rem 1.125rem;
+    font-size: 12.5px;
+    line-height: 1.65;
+    overflow-x: auto;
+  }
+</style>

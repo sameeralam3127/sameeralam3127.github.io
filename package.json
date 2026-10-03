@@ -1,0 +1,40 @@
+{
+  "name": "sameeralam3127.github.io",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Portfolio of Sameer Alam \u2014 Infrastructure & Security Engineer.",
+  "engines": {
+    "node": ">=22.22.3"
+  },
+  "scripts": {
+    "dev": "npm run data && astro dev",
+    "data": "node scripts/build-meta.ts start && node scripts/fetch-github.ts && node scripts/fetch-articles.ts",
+    "prebuild": "npm run data",
+    "build": "astro build",
+    "postbuild": "node scripts/build-meta.ts finish",
+    "preview": "astro preview",
+    "typecheck": "astro check",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@astrojs/react": "^7.0.0",
+    "@astrojs/sitemap": "^3.7.4",
+    "@fontsource-variable/ibm-plex-sans": "^5.3.0",
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.3.5",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "tailwindcss": "^4.3.3"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "prettier": "^3.9.9",
+    "prettier-plugin-astro": "^1.1.0",
+    "typescript": "~6.0.3"
+  }
+}
