@@ -1,0 +1,57 @@
+---
+import ProjectCard from "./ProjectCard.astro";
+import Icon from "@/components/ui/Icon.astro";
+import SectionHeading from "@/components/ui/SectionHeading.astro";
+import { featuredProjects, otherProjects, profile, repoUrl } from "@/data/profile";
+import { getDeepDiveSlugs } from "@/lib/deep-dives";
+
+const deepDives = await getDeepDiveSlugs();
+
+const github = profile.contact.social.find((s) => s.icon === "github");
+---
+
+<section aria-labelledby="projects" class="mx-auto max-w-6xl px-4 pt-24 sm:px-6" data-reveal>
+  <SectionHeading
+    id="projects"
+    command="ls -l ~/projects"
+    title="Projects"
+    lede="Tools I built to remove toil: remediation, fleet health, network visibility and AI-assisted automation."
+  />
+
+  <ul class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+    {featuredProjects.map((project) => (
+      <ProjectCard project={project} hasDeepDive={deepDives.includes(project.slug)} />
+    ))}
+  </ul>
+
+  {otherProjects.length > 0 && (
+    <div class="mt-10">
+      <h3 class="font-mono text-sm text-muted">
+        <span class="text-ok">$</span> ls ~/projects/more
+      </h3>
+      <ul class="mt-3 divide-y divide-line rounded-md border border-line bg-panel">
+        {otherProjects.map((project) => (
+          <li class="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-baseline sm:gap-4 sm:px-5">
+            <a
+              href={repoUrl(project.repo)}
+              class="link shrink-0 font-mono text-sm sm:w-56"
+              rel="noopener"
+            >
+              {project.name}
+            </a>
+            <span class="text-sm text-muted">{project.tagline}</span>
+          </li>
+        ))}
+      </ul>
+      {github && (
+        <a
+          href={github.href}
+          class="mt-4 inline-flex items-center gap-1.5 font-mono text-xs text-muted hover:text-accent"
+          rel="noopener"
+        >
+          all repositories on GitHub <Icon name="arrow" size={12} />
+        </a>
+      )}
+    </div>
+  )}
+</section>

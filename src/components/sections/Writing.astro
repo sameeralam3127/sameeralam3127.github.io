@@ -1,0 +1,48 @@
+---
+import Icon from "@/components/ui/Icon.astro";
+import SectionHeading from "@/components/ui/SectionHeading.astro";
+import { profile } from "@/data/profile";
+import { formatDate } from "@/lib/format";
+import { articles } from "@/lib/site-data";
+
+const { writing } = profile;
+---
+
+<section aria-labelledby="writing" class="mx-auto max-w-6xl px-4 pt-24 sm:px-6" data-reveal>
+  <SectionHeading
+    id="writing"
+    command={`curl -s ${new URL(writing.href).host}`}
+    title={articles.live ? `Latest from ${writing.name}` : `Writing on ${writing.name}`}
+    lede={writing.description}
+  />
+
+  <ul class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+    {articles.items.map((article) => (
+      <li>
+        <a
+          href={article.href}
+          rel="noopener"
+          class="panel group flex h-full flex-col p-4 transition-colors hover:border-line-strong sm:p-5"
+        >
+          <span class="flex justify-between gap-3 font-mono text-xs">
+            <span class="text-info">#{article.topic}</span>
+            {article.lastmod && (
+              <span class="text-muted">updated {formatDate(article.lastmod)}</span>
+            )}
+          </span>
+          <span class="mt-2 font-medium text-text group-hover:text-accent">{article.title}</span>
+          <span class="mt-2 text-sm leading-relaxed text-muted">{article.description}</span>
+        </a>
+      </li>
+    ))}
+  </ul>
+
+  <a
+    href={writing.href}
+    rel="noopener"
+    class="mt-6 inline-flex items-center gap-1.5 font-mono text-xs text-muted hover:text-accent"
+  >
+    all guides on {new URL(writing.href).host}
+    <Icon name="arrow" size={12} />
+  </a>
+</section>

@@ -1,0 +1,24 @@
+---
+/**
+ * Section header styled as a shell prompt line above a plain-language title.
+ * `id` is applied to the heading so in-page links and the TOC target it.
+ */
+interface Props {
+  id: string;
+  command: string;
+  title: string;
+  lede?: string;
+}
+
+const { id, command, title, lede } = Astro.props;
+---
+
+<header class="mb-8 max-w-3xl">
+  <p class="font-mono text-xs text-muted sm:text-sm">
+    <span class="text-ok">$</span> {command}
+  </p>
+  <h2 id={id} class="mt-2 text-2xl font-semibold tracking-tight text-text sm:text-3xl">
+    {title}
+  </h2>
+  {lede && <p class="mt-3 text-muted">{lede}</p>}
+</header>

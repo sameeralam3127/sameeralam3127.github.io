@@ -1,0 +1,207 @@
+---
+/**
+ * Weekly activity as a single-series column chart (one hue, no legend — the
+ * caption names the series). Hover or arrow keys show a per-week tooltip; a
+ * table view carries every value for readers who can't use either.
+ */
+import type { ActivityWeek } from "@/lib/generated-types";
+import { formatDate } from "@/lib/format";
+
+interface Props {
+  weeks: ActivityWeek[];
+  /** What a count measures, e.g. "contributions". */
+  unit: string;
+}
+
+const { weeks, unit } = Astro.props;
+
+const max = Math.max(1, ...weeks.map((w) => w.count));
+/** Round the axis top up to a clean number: 1, 2, 5 × 10^n. */
+const niceCeil = (n: number): number => {
+  const pow = 10 ** Math.floor(Math.log10(n));
+  const step = [1, 2, 5, 10].find((s) => s * pow >= n) ?? 10;
+  return step * pow;
+};
+const top = niceCeil(max);
+const ticks = [top, top / 2, 0];
+const peakIndex = weeks.findIndex((w) => w.count === max);
+
+// One label per month, placed at the first week that starts in it.
+const monthOf = (w: ActivityWeek) => new Date(`${w.start}T00:00:00Z`).getUTCMonth();
+const months = weeks.flatMap((w, i) => {
+  const prev = weeks[i - 1];
+  if (!prev || monthOf(prev) === monthOf(w)) return [];
+  return [
+    {
+      left: (i / weeks.length) * 100,
+      label: new Date(`${w.start}T00:00:00Z`).toLocaleDateString("en-GB", {
+        month: "short",
+        timeZone: "UTC",
+      }),
+    },
+  ];
+});
+
+const fmt = (n: number) => n.toLocaleString("en");
+const describe = (w: ActivityWeek) => `${fmt(w.count)} ${unit}, week of ${formatDate(w.start)}`;
+---
+
+<figure class="activity-chart">
+  <div class="flex gap-2">
+    <!-- y-axis labels -->
+    <div
+      class="relative h-36 w-8 shrink-0 font-mono text-[10px] text-muted tabular-nums"
+      aria-hidden="true"
+    >
+      {ticks.map((t) => (
+        <span class="absolute right-0 -translate-y-1/2" style={`top: ${(1 - t / top) * 100}%`}>
+          {fmt(t)}
+        </span>
+      ))}
+    </div>
+
+    <div class="relative min-w-0 flex-1">
+      <!-- hairline gridlines -->
+      {ticks.map((t) => (
+        <div
+          class="absolute inset-x-0 border-t border-line"
+          style={`top: ${(1 - t / top) * 100}%`}
+          aria-hidden="true"
+        />
+      ))}
+      <div
+        class="relative flex h-36 items-end gap-[2px] rounded-sm outline-offset-4"
+        tabindex="0"
+        role="group"
+        aria-label={`Weekly ${unit} over ${weeks.length} weeks. Use left and right arrow keys to read each week.`}
+        data-activity-bars
+      >
+        {weeks.map((w, i) => (
+          <div
+            class="group relative flex h-full max-w-6 flex-1 items-end justify-center"
+            data-bar
+            data-label={describe(w)}
+          >
+            {i === peakIndex && (
+              <span
+                class="absolute font-mono text-[10px] whitespace-nowrap text-text"
+                style={`bottom: calc(${(w.count / top) * 100}% + 4px)`}
+                aria-hidden="true"
+              >
+                {fmt(w.count)}
+              </span>
+            )}
+            <div
+              class="bar w-full rounded-t-[3px] bg-accent"
+              style={`height: ${w.count === 0 ? 0 : Math.max(2, (w.count / top) * 100)}%`}
+            />
+          </div>
+        ))}
+      </div>
+      <!-- x-axis month labels -->
+      <div class="relative mt-2 h-4 font-mono text-[10px] text-muted" aria-hidden="true">
+        {months.map((m) => (
+          <span class="absolute" style={`left: ${m.left}%`}>
+            {m.label}
+          </span>
+        ))}
+      </div>
+      <div
+        class="pointer-events-none absolute z-10 hidden rounded border border-line-strong bg-panel-2 px-2.5 py-1.5 text-xs whitespace-nowrap shadow-lg"
+        data-tooltip
+        role="status"
+      ></div>
+    </div>
+  </div>
+
+  <details class="mt-4 text-sm">
+    <summary class="cursor-pointer font-mono text-xs text-muted hover:text-text">
+      View as table
+    </summary>
+    <div class="mt-2 max-h-64 overflow-auto rounded border border-line">
+      <table class="w-full text-left text-xs">
+        <caption class="sr-only">Weekly{unit}</caption>
+        <thead class="sticky top-0 bg-panel-2 font-mono text-muted">
+          <tr>
+            <th scope="col" class="px-3 py-1.5 font-normal">
+              Week of
+            </th>
+            <th scope="col" class="px-3 py-1.5 text-right font-normal">
+              {unit}
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-line tabular-nums">
+          {[...weeks].reverse().map((w) => (
+            <tr>
+              <td class="px-3 py-1.5 text-muted">{formatDate(w.start)}</td>
+              <td class="px-3 py-1.5 text-right text-text">{fmt(w.count)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </details>
+</figure>
+
+<style>
+  [data-bar] .bar {
+    transition: filter 0.15s ease;
+  }
+  [data-bar].is-active .bar,
+  [data-bar]:hover .bar {
+    filter: brightness(1.25);
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>(".activity-chart").forEach((chart) => {
+    const group = chart.querySelector<HTMLElement>("[data-activity-bars]");
+    const tooltip = chart.querySelector<HTMLElement>("[data-tooltip]");
+    if (!group || !tooltip) return;
+    const bars = [...group.querySelectorAll<HTMLElement>("[data-bar]")];
+    let active = bars.length - 1;
+
+    const show = (index: number) => {
+      const bar = bars[index];
+      if (!bar) return;
+      bars.forEach((b) => b.classList.toggle("is-active", b === bar));
+      active = index;
+      tooltip.textContent = bar.dataset.label ?? "";
+      tooltip.classList.remove("hidden");
+      const groupBox = group.getBoundingClientRect();
+      const barBox = bar.getBoundingClientRect();
+      const center = barBox.left - groupBox.left + barBox.width / 2;
+      const half = tooltip.offsetWidth / 2;
+      const left = Math.min(Math.max(center, half), groupBox.width - half);
+      tooltip.style.left = `${left - half}px`;
+      tooltip.style.top = `-2.25rem`;
+    };
+
+    const hide = () => {
+      tooltip.classList.add("hidden");
+      bars.forEach((b) => b.classList.remove("is-active"));
+    };
+
+    bars.forEach((bar, i) => {
+      bar.addEventListener("pointerenter", () => show(i));
+    });
+    group.addEventListener("pointerleave", () => {
+      if (document.activeElement !== group) hide();
+    });
+    group.addEventListener("focus", () => show(active));
+    group.addEventListener("blur", hide);
+    group.addEventListener("keydown", (event) => {
+      const moves: Record<string, number> = {
+        ArrowLeft: active - 1,
+        ArrowRight: active + 1,
+        Home: 0,
+        End: bars.length - 1,
+      };
+      const next = moves[event.key];
+      if (next === undefined) return;
+      event.preventDefault();
+      show(Math.min(Math.max(next, 0), bars.length - 1));
+    });
+  });
+</script>

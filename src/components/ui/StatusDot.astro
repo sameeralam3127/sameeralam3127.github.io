@@ -1,0 +1,26 @@
+---
+type State = "ok" | "warn" | "crit" | "info" | "idle";
+
+interface Props {
+  state?: State;
+  pulse?: boolean;
+  class?: string;
+}
+
+const { state = "ok", pulse = false, class: className } = Astro.props;
+
+const color: Record<State, string> = {
+  ok: "var(--c-ok)",
+  warn: "var(--c-warn)",
+  crit: "var(--c-crit)",
+  info: "var(--c-info)",
+  idle: "var(--c-muted)",
+};
+---
+
+<span
+  class:list={["led", className]}
+  style={`--led: ${color[state]}`}
+  data-pulse={pulse ? "" : undefined}
+  aria-hidden="true"
+></span>

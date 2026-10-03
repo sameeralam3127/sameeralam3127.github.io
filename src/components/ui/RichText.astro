@@ -1,0 +1,21 @@
+---
+/** Renders a frontmatter string, turning `backticks` into inline code. */
+import { inlineCode } from "@/lib/inline-code";
+
+interface Props {
+  text: string;
+}
+
+const parts = inlineCode(Astro.props.text);
+---
+
+{parts.map((part) =>
+  part.code ? (
+    <code
+      class="rounded bg-panel-2 px-1 py-0.5 font-mono text-[0.85em] text-text"
+      set:text={part.text}
+    />
+  ) : (
+    part.text
+  ),
+)}

@@ -1,0 +1,228 @@
+---
+import ActivityChart from "./ActivityChart.astro";
+import Icon from "@/components/ui/Icon.astro";
+import Panel from "@/components/ui/Panel.astro";
+import SectionHeading from "@/components/ui/SectionHeading.astro";
+import StatusDot from "@/components/ui/StatusDot.astro";
+import { profile } from "@/data/profile";
+import { compactNumber, formatUtc, timeAgo } from "@/lib/format";
+import { github } from "@/lib/site-data";
+
+const REPO_LIMIT = 9;
+// The profile README repo is not a project.
+const hidden = new Set([`${profile.handle}/${profile.handle}`.toLowerCase()]);
+
+const repos = (github?.repos ?? [])
+  .filter((r) => !r.archived && !hidden.has(r.fullName.toLowerCase()))
+  .sort((a, b) => (b.lastCommitAt ?? "").localeCompare(a.lastCommitAt ?? ""))
+  .slice(0, REPO_LIMIT);
+
+const totals = github
+  ? {
+      repos: github.user.publicRepos,
+      stars: github.repos.reduce((s, r) => s + r.stars, 0),
+      forks: github.repos.reduce((s, r) => s + r.forks, 0),
+    }
+  : null;
+
+const activityLabel =
+  github?.activity.kind === "contributions"
+    ? "contributions in the last 12 months"
+    : "public events in the last 90 days";
+---
+
+<section aria-labelledby="github" class="mx-auto max-w-6xl px-4 pt-24 sm:px-6" data-reveal>
+  <SectionHeading
+    id="github"
+    command={`gh api users/${profile.handle}`}
+    title="Live from GitHub"
+    lede="Pulled from the GitHub API on every deploy and nightly. Refresh to read the current numbers straight from GitHub."
+  />
+
+  {!github || !totals ? (
+    <Panel title="github: snapshot unavailable">
+      <p class="text-sm text-muted">
+        This build couldn’t reach the GitHub API. Everything is still on{" "}
+        <a href={`https://github.com/${profile.handle}`} class="link">
+          github.com/{profile.handle}
+        </a>
+        .
+      </p>
+    </Panel>
+  ) : (
+    <div data-github-dashboard data-snapshot-at={github.generatedAt} data-login={profile.handle}>
+      <div class="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-xs text-muted">
+        <span class="inline-flex items-center gap-2">
+          <StatusDot state="ok" />
+          <span data-refresh-status>
+            snapshot {timeAgo(github.generatedAt)} · {formatUtc(github.generatedAt)}
+          </span>
+        </span>
+        <button
+          type="button"
+          class="inline-flex items-center gap-1.5 rounded border border-line px-2.5 py-1 text-text hover:border-accent hover:text-accent disabled:opacity-50"
+          data-refresh
+        >
+          refresh
+        </button>
+      </div>
+
+      <dl class="grid grid-cols-2 gap-px overflow-hidden rounded-md border border-line bg-line lg:grid-cols-4">
+        <div class="flex flex-col-reverse justify-end bg-panel p-4">
+          <dt class="mt-1 text-xs text-muted">public repositories</dt>
+          <dd class="font-mono text-2xl font-semibold text-text">{totals.repos}</dd>
+        </div>
+        <div class="flex flex-col-reverse justify-end bg-panel p-4">
+          <dt class="mt-1 text-xs text-muted">stars across repositories</dt>
+          <dd class="font-mono text-2xl font-semibold text-text" data-total="stars">
+            {compactNumber(totals.stars)}
+          </dd>
+        </div>
+        <div class="flex flex-col-reverse justify-end bg-panel p-4">
+          <dt class="mt-1 text-xs text-muted">forks</dt>
+          <dd class="font-mono text-2xl font-semibold text-text" data-total="forks">
+            {compactNumber(totals.forks)}
+          </dd>
+        </div>
+        <div class="flex flex-col-reverse justify-end bg-panel p-4">
+          <dt class="mt-1 text-xs text-muted">{activityLabel}</dt>
+          <dd class="font-mono text-2xl font-semibold text-text">
+            {compactNumber(github.activity.total)}
+          </dd>
+        </div>
+      </dl>
+
+      <Panel title={`activity: weekly ${github.activity.kind}`} class="mt-4">
+        <span slot="meta">{github.activity.weeks.length} weeks</span>
+        <ActivityChart weeks={github.activity.weeks} unit={github.activity.kind} />
+      </Panel>
+
+      <ul class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {repos.map((repo) => (
+          <li class="panel flex min-w-0 flex-col p-4" data-repo={repo.fullName.toLowerCase()}>
+            <div class="flex items-start justify-between gap-3">
+              <a href={repo.url} class="link min-w-0 truncate font-mono text-sm" rel="noopener">
+                {repo.name}
+              </a>
+              {repo.language && (
+                <span class="shrink-0 font-mono text-xs text-muted">{repo.language}</span>
+              )}
+            </div>
+            {repo.description && (
+              <p class="mt-2 line-clamp-2 text-sm text-muted">{repo.description}</p>
+            )}
+            <dl class="mt-auto grid grid-cols-3 gap-2 pt-4 font-mono text-xs">
+              <div>
+                <dt class="text-muted">stars</dt>
+                <dd class="text-text" data-field="stars">
+                  {repo.stars}
+                </dd>
+              </div>
+              <div>
+                <dt class="text-muted">forks</dt>
+                <dd class="text-text" data-field="forks">
+                  {repo.forks}
+                </dd>
+              </div>
+              <div>
+                <dt class="text-muted">open issues</dt>
+                <dd class="text-text" data-field="openIssues">
+                  {repo.openIssues}
+                </dd>
+              </div>
+            </dl>
+            {repo.lastCommitAt && (
+              <p class="mt-3 truncate border-t border-line pt-3 font-mono text-xs text-muted">
+                last commit{" "}
+                <time datetime={repo.lastCommitAt} class="text-text" data-field="lastCommitAt">
+                  {timeAgo(repo.lastCommitAt)}
+                </time>
+                {repo.lastCommitMessage && (
+                  <span title={repo.lastCommitMessage}> · {repo.lastCommitMessage}</span>
+                )}
+              </p>
+            )}
+          </li>
+        ))}
+      </ul>
+
+      <a
+        href={`https://github.com/${profile.handle}?tab=repositories`}
+        rel="noopener"
+        class="mt-4 inline-flex items-center gap-1.5 font-mono text-xs text-muted hover:text-accent"
+      >
+        all repositories <Icon name="arrow" size={12} />
+      </a>
+    </div>
+  )}
+</section>
+
+<script>
+  import { compactNumber, timeAgo } from "@/lib/format";
+
+  interface ApiRepo {
+    full_name: string;
+    stargazers_count: number;
+    forks_count: number;
+    open_issues_count: number;
+    pushed_at: string | null;
+    fork: boolean;
+  }
+
+  const root = document.querySelector<HTMLElement>("[data-github-dashboard]");
+  const button = root?.querySelector<HTMLButtonElement>("[data-refresh]");
+  const status = root?.querySelector<HTMLElement>("[data-refresh-status]");
+
+  if (root && button && status) {
+    const snapshotAt = root.dataset.snapshotAt ?? "";
+    const login = root.dataset.login ?? "";
+    status.setAttribute("aria-live", "polite");
+
+    const setField = (card: Element, field: string, value: string) => {
+      const el = card.querySelector<HTMLElement>(`[data-field="${field}"]`);
+      if (el) el.textContent = value;
+    };
+
+    button.addEventListener("click", async () => {
+      button.disabled = true;
+      status.textContent = "refreshing from api.github.com…";
+      try {
+        const res = await fetch(
+          `https://api.github.com/users/${encodeURIComponent(login)}/repos?per_page=100&type=owner`,
+          { headers: { Accept: "application/vnd.github+json" } },
+        );
+        if (res.status === 403 || res.status === 429) throw new Error("rate limited");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const repos = ((await res.json()) as ApiRepo[]).filter((r) => !r.fork);
+
+        let stars = 0;
+        let forks = 0;
+        for (const repo of repos) {
+          stars += repo.stargazers_count;
+          forks += repo.forks_count;
+          const card = root.querySelector(
+            `[data-repo="${CSS.escape(repo.full_name.toLowerCase())}"]`,
+          );
+          if (!card) continue;
+          setField(card, "stars", String(repo.stargazers_count));
+          setField(card, "forks", String(repo.forks_count));
+          setField(card, "openIssues", String(repo.open_issues_count));
+          if (repo.pushed_at) setField(card, "lastCommitAt", timeAgo(repo.pushed_at));
+        }
+        const starsEl = root.querySelector('[data-total="stars"]');
+        const forksEl = root.querySelector('[data-total="forks"]');
+        if (starsEl) starsEl.textContent = compactNumber(stars);
+        if (forksEl) forksEl.textContent = compactNumber(forks);
+        status.textContent = `live · refreshed ${new Date().toLocaleTimeString()}`;
+      } catch (error) {
+        const reason =
+          error instanceof Error && error.message === "rate limited"
+            ? "GitHub rate limit reached"
+            : "GitHub API unreachable";
+        status.textContent = `${reason} · showing snapshot from ${timeAgo(snapshotAt)}`;
+      } finally {
+        button.disabled = false;
+      }
+    });
+  }
+</script>

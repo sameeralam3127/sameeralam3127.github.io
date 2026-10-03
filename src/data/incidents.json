@@ -1,0 +1,570 @@
+[
+  {
+    "id": "crashloop-payments",
+    "title": "Pods in CrashLoopBackOff after a release",
+    "severity": "SEV2",
+    "service": "payments-api · prod",
+    "alert": "KubePodCrashLooping: payments-api pods restarting repeatedly in namespace payments. Checkout error rate above SLO.",
+    "pagedAt": "02:14 IST",
+    "start": "page",
+    "nodes": {
+      "page": {
+        "title": "You've been paged",
+        "narrative": "It's 02:14. Checkout errors are climbing and two of three payments-api pods are crash-looping. Customers are seeing failed payments right now. What's your first move?",
+        "evidence": [
+          {
+            "type": "command",
+            "command": "kubectl get pods -n payments -l app=payments-api",
+            "output": [
+              "NAME                            READY   STATUS             RESTARTS      AGE",
+              "payments-api-7c8f9f6d9b-x2q4m   0/1     CrashLoopBackOff   6 (41s ago)   38m",
+              "payments-api-7c8f9f6d9b-k8d2n   0/1     CrashLoopBackOff   5 (1m ago)    38m",
+              "payments-api-7c8f9f6d9b-p9r7t   1/1     Running            4 (3m ago)    38m"
+            ]
+          },
+          {
+            "type": "metric",
+            "title": "checkout 5xx rate",
+            "unit": "%",
+            "range": ["01:50", "02:14"],
+            "series": [
+              0.2, 0.2, 0.3, 0.2, 0.4, 1.1, 2.6, 4.8, 3.9, 7.2, 9.8, 8.1, 12.4, 15.0, 13.2, 17.9
+            ],
+            "threshold": { "value": 2, "label": "SLO alert 2%" }
+          }
+        ],
+        "choices": [
+          {
+            "id": "describe",
+            "label": "Describe a failing pod and read its last termination state",
+            "next": "describe",
+            "minutes": 3,
+            "verdict": "good",
+            "feedback": "Evidence before action. The last termination state tells you how the container died, which narrows everything that follows."
+          },
+          {
+            "id": "delete",
+            "label": "Delete the crashing pods so they restart fresh",
+            "next": "deleted",
+            "minutes": 2,
+            "verdict": "bad",
+            "feedback": "Deleting pods destroys the evidence (previous logs, restart history) and doesn't change why they crash."
+          },
+          {
+            "id": "rollback",
+            "label": "Roll back the most recent release immediately",
+            "next": "rolled-back",
+            "minutes": 6,
+            "verdict": "neutral",
+            "feedback": "Rolling back is a legitimate mitigation. But you did it blind: you don't yet know that the release caused this."
+          },
+          {
+            "id": "scale",
+            "label": "Scale payments-api to 10 replicas to absorb the failures",
+            "next": "scaled",
+            "minutes": 4,
+            "verdict": "bad",
+            "feedback": "More replicas of a crashing workload just means more crashing pods, and more pressure on shared nodes."
+          }
+        ]
+      },
+      "describe": {
+        "title": "The kernel is killing the container",
+        "narrative": "The container isn't exiting on its own. Exit code 137 with reason OOMKilled means it hit its memory limit and was killed. Memory climbs to the limit after every restart.",
+        "evidence": [
+          {
+            "type": "command",
+            "command": "kubectl describe pod payments-api-7c8f9f6d9b-x2q4m -n payments",
+            "output": [
+              "    State:          Waiting",
+              "      Reason:       CrashLoopBackOff",
+              "    Last State:     Terminated",
+              "      Reason:       OOMKilled",
+              "      Exit Code:    137",
+              "    Limits:",
+              "      memory:  256Mi",
+              "Events:",
+              "  Warning  BackOff  41s (x14 over 9m)  kubelet  Back-off restarting failed container api"
+            ]
+          },
+          {
+            "type": "metric",
+            "title": "container memory working set",
+            "unit": "Mi",
+            "range": ["02:04", "02:14"],
+            "series": [96, 148, 201, 243, 256, 88, 151, 207, 249, 256, 92, 160, 214, 252, 256],
+            "threshold": { "value": 256, "label": "limit 256Mi" }
+          }
+        ],
+        "choices": [
+          {
+            "id": "diff",
+            "label": "Pods are 38 minutes old. Check what the last release changed",
+            "next": "diff",
+            "minutes": 4,
+            "verdict": "good",
+            "feedback": "Pods younger than the alert almost always means a deploy. Correlating with change is the fastest route to cause."
+          },
+          {
+            "id": "bump",
+            "label": "kubectl edit the Deployment and raise the memory limit to 1Gi",
+            "next": "bumped",
+            "minutes": 3,
+            "verdict": "neutral",
+            "feedback": "It will stop the OOM kills, but you're changing production outside source control without knowing why memory use changed."
+          },
+          {
+            "id": "scale",
+            "label": "Add replicas so fewer requests land on crashing pods",
+            "next": "scaled",
+            "minutes": 4,
+            "verdict": "bad",
+            "feedback": "Every new replica has the same 256Mi limit and dies the same way."
+          }
+        ]
+      },
+      "diff": {
+        "title": "The release halved the memory limit",
+        "narrative": "Revision 42 shipped at 01:36: chart 3.9.0, which adds an in-memory cache, together with a \"right-sizing\" change that cut the memory limit from 512Mi to 256Mi. The new code needs more memory just as the limit was halved.",
+        "evidence": [
+          {
+            "type": "command",
+            "command": "helm history payments-api -n payments --max 3",
+            "output": [
+              "REVISION  UPDATED                   STATUS      CHART               DESCRIPTION",
+              "40        Thu Oct  1 16:02:11 2026  superseded  payments-api-3.8.1  Upgrade complete",
+              "41        Fri Oct  2 11:47:30 2026  superseded  payments-api-3.8.2  Upgrade complete",
+              "42        Sat Oct  3 01:36:05 2026  deployed    payments-api-3.9.0  Upgrade complete"
+            ]
+          },
+          {
+            "type": "command",
+            "command": "helm diff revision payments-api 41 42 -n payments",
+            "output": [
+              "payments, payments-api, Deployment (apps) has changed:",
+              "           resources:",
+              "             limits:",
+              "-              memory: 512Mi",
+              "+              memory: 256Mi",
+              "             requests:",
+              "-              memory: 384Mi",
+              "+              memory: 192Mi"
+            ]
+          }
+        ],
+        "choices": [
+          {
+            "id": "rollback-41",
+            "label": "helm rollback to revision 41, then fix the limits in a reviewed PR",
+            "next": "resolved-rollback",
+            "minutes": 5,
+            "verdict": "good",
+            "feedback": "Back to a known-good state in one step, with the real fix going through Git so the cluster and the source of truth agree."
+          },
+          {
+            "id": "edit-live",
+            "label": "Patch the limit live with kubectl to stop the bleeding",
+            "next": "bumped",
+            "minutes": 3,
+            "verdict": "neutral",
+            "feedback": "It works as mitigation, but the cluster now differs from Git, and you already had a cleaner option: roll back."
+          }
+        ]
+      },
+      "bumped": {
+        "title": "Stable, and out of sync with Git",
+        "narrative": "With a higher limit the pods stop restarting and checkout errors fall. But the change lives only in the cluster. Argo CD marks the app OutOfSync, and the next sync will put 256Mi back.",
+        "evidence": [
+          {
+            "type": "metric",
+            "title": "checkout 5xx rate",
+            "unit": "%",
+            "range": ["02:14", "02:26"],
+            "series": [17.9, 16.4, 11.0, 6.2, 2.9, 1.1, 0.6, 0.4, 0.3, 0.3],
+            "threshold": { "value": 2, "label": "SLO alert 2%" }
+          }
+        ],
+        "choices": [
+          {
+            "id": "codify",
+            "label": "Open a PR with the new limit before closing the page",
+            "next": "resolved-codified",
+            "minutes": 6,
+            "verdict": "good",
+            "feedback": "A manual hotfix is fine as mitigation, as long as it lands in source control before you walk away."
+          },
+          {
+            "id": "close",
+            "label": "Errors are gone. Resolve the incident and go back to sleep",
+            "next": "recurred",
+            "minutes": 1,
+            "verdict": "bad",
+            "feedback": "The fix exists only in the live cluster. The next sync or deploy will undo it."
+          }
+        ]
+      },
+      "deleted": {
+        "title": "Same crash, less evidence",
+        "narrative": "The new pods start clean, with the restart count reset and the previous container's logs gone, and are OOMKilled again 90 seconds later. You lost evidence and two minutes.",
+        "evidence": [
+          {
+            "type": "command",
+            "command": "kubectl get pods -n payments -l app=payments-api",
+            "output": [
+              "NAME                            READY   STATUS      RESTARTS     AGE",
+              "payments-api-7c8f9f6d9b-r4vbn   0/1     OOMKilled   1 (8s ago)   97s",
+              "payments-api-7c8f9f6d9b-m2zlw   0/1     OOMKilled   1 (3s ago)   97s",
+              "payments-api-7c8f9f6d9b-p9r7t   1/1     Running     4 (5m ago)   40m"
+            ]
+          }
+        ],
+        "choices": [
+          {
+            "id": "describe",
+            "label": "Describe a failing pod and read its last termination state",
+            "next": "describe",
+            "minutes": 3,
+            "verdict": "good",
+            "feedback": "Back on track: look at how the container died before changing anything else."
+          },
+          {
+            "id": "rollback",
+            "label": "Roll back the most recent release",
+            "next": "rolled-back",
+            "minutes": 6,
+            "verdict": "neutral",
+            "feedback": "Reasonable mitigation, still without evidence of what's wrong."
+          }
+        ]
+      },
+      "scaled": {
+        "title": "The blast radius grew",
+        "narrative": "Ten replicas, each climbing to its memory limit. Two nodes report MemoryPressure and the kubelet starts evicting neighbouring pods. The search service is now degraded too.",
+        "evidence": [
+          {
+            "type": "command",
+            "command": "kubectl get events -A --field-selector reason=Evicted",
+            "output": [
+              "NAMESPACE   LAST SEEN   TYPE      REASON    OBJECT                         MESSAGE",
+              "search      22s         Warning   Evicted   pod/search-api-5d9c7b-qq2lx    The node was low on resource: memory.",
+              "search      19s         Warning   Evicted   pod/search-api-5d9c7b-z7kfp    The node was low on resource: memory."
+            ]
+          }
+        ],
+        "choices": [
+          {
+            "id": "describe",
+            "label": "Scale back to 3 and find out why the pods die",
+            "next": "describe",
+            "minutes": 5,
+            "verdict": "good",
+            "feedback": "Contain the blast radius first, then investigate the actual failure."
+          }
+        ]
+      },
+      "rolled-back": {
+        "title": "Mitigated, cause unknown",
+        "narrative": "helm rollback to revision 41. Within two minutes the pods are stable and checkout errors fall below the SLO threshold. Customers are fine, but you don't know why revision 42 broke, and it's still what main will deploy next.",
+        "evidence": [
+          {
+            "type": "metric",
+            "title": "checkout 5xx rate",
+            "unit": "%",
+            "range": ["02:14", "02:24"],
+            "series": [17.9, 18.2, 12.5, 5.1, 1.4, 0.5, 0.3, 0.2, 0.3],
+            "threshold": { "value": 2, "label": "SLO alert 2%" }
+          }
+        ],
+        "choices": [
+          {
+            "id": "investigate",
+            "label": "Diff revisions 41 and 42 before standing down",
+            "next": "resolved-rollback",
+            "minutes": 5,
+            "verdict": "good",
+            "feedback": "Mitigate, then explain. Ten minutes now saves the next on-call from the same page."
+          },
+          {
+            "id": "close",
+            "label": "Errors are gone. Resolve the incident",
+            "next": "recurred",
+            "minutes": 1,
+            "verdict": "bad",
+            "feedback": "Without a cause, the broken release is still queued to ship again."
+          }
+        ]
+      },
+      "resolved-rollback": {
+        "title": "Mitigated fast, root cause known",
+        "narrative": "",
+        "outcome": {
+          "result": "resolved",
+          "title": "Mitigated fast, root cause known",
+          "summary": "You returned to a known-good release, confirmed recovery against the SLO, and traced the failure to a resource change in revision 42. The fix (restore the limit and profile the new cache) goes through a reviewed PR, so Git and the cluster agree.",
+          "lessons": [
+            "Read the last termination state first: OOMKilled with exit 137 points at limits, not application code.",
+            "Correlate with change. Pods younger than the alert usually mean a deploy.",
+            "Roll back to mitigate, then fix forward through Git. Never leave the cluster drifting from source."
+          ]
+        }
+      },
+      "resolved-codified": {
+        "title": "Recovered, and the fix is in Git",
+        "narrative": "",
+        "outcome": {
+          "result": "resolved",
+          "title": "Recovered, and the fix is in Git",
+          "summary": "The live patch stopped the bleeding, and opening the PR before standing down means the next sync keeps it. The post-incident review now asks why a halved memory limit reached production unnoticed.",
+          "lessons": [
+            "A manual hotfix is acceptable mitigation only once it lands in source control.",
+            "Resource changes deserve the same scrutiny as code: a load test or canary would have caught this before prod.",
+            "Check what changed before reaching for kubectl edit. Here a rollback was the cleaner fix."
+          ]
+        }
+      },
+      "recurred": {
+        "title": "It came back at 09:00",
+        "narrative": "",
+        "outcome": {
+          "result": "escalated",
+          "title": "It came back at 09:00",
+          "summary": "The incident was closed without a cause. When the next sync or the morning deploy shipped 256Mi again, payments crash-looped at peak traffic. It was the same page with far more customers affected, and it now goes to an incident review.",
+          "lessons": [
+            "Mitigation isn't resolution. Close an incident only when you know why it happened.",
+            "Make sure every fix lives in the source of truth, or automation will undo it.",
+            "Write down what you know before standing down, even at 2am."
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "tls-edge",
+    "title": "HTTPS failing at the edge",
+    "severity": "SEV1",
+    "service": "edge · api.example.com",
+    "alert": "Synthetic check FAILED for https://api.example.com/health: SSL certificate problem. Partner API error rate 41%.",
+    "pagedAt": "09:02 IST",
+    "start": "page",
+    "nodes": {
+      "page": {
+        "title": "Partners can't reach the API",
+        "narrative": "It's 09:02 and partner integrations are failing. Any client that validates certificates is getting TLS errors, and browsers show a full-page warning. Your status page is already getting tickets.",
+        "evidence": [
+          {
+            "type": "command",
+            "command": "curl -sv https://api.example.com/health",
+            "output": [
+              "* Connected to api.example.com (203.0.113.10) port 443",
+              "* SSL certificate problem: certificate has expired",
+              "* Closing connection",
+              "curl: (60) SSL certificate problem: certificate has expired"
+            ]
+          },
+          {
+            "type": "metric",
+            "title": "TLS handshake failures",
+            "unit": "/min",
+            "range": ["08:50", "09:02"],
+            "series": [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 340, 812, 905, 887],
+            "threshold": { "value": 50, "label": "alert 50/min" }
+          }
+        ],
+        "choices": [
+          {
+            "id": "inspect",
+            "label": "Inspect the certificate the edge is actually serving",
+            "next": "served-cert",
+            "minutes": 3,
+            "verdict": "good",
+            "feedback": "The error says expired, so check what's actually served before assuming anything about renewal."
+          },
+          {
+            "id": "restart-app",
+            "label": "Restart the API's application pods",
+            "next": "app-restart",
+            "minutes": 8,
+            "verdict": "bad",
+            "feedback": "TLS terminates at the edge, in front of the application. The app never sees these handshakes."
+          },
+          {
+            "id": "disable-verify",
+            "label": "Ask partners to turn off certificate verification for now",
+            "next": "insecure",
+            "minutes": 2,
+            "verdict": "bad",
+            "feedback": "This trades an outage for a security incident, and the expired certificate is still there."
+          }
+        ]
+      },
+      "served-cert": {
+        "title": "Two certificates, two expiry dates",
+        "narrative": "The edge is serving a certificate that expired at midnight. But the certificate file on disk is fresh, renewed with three months left. Nginx is serving something other than the file you'd expect.",
+        "evidence": [
+          {
+            "type": "command",
+            "command": "openssl s_client -connect api.example.com:443 -servername api.example.com </dev/null 2>/dev/null | openssl x509 -noout -subject -enddate",
+            "output": ["subject=CN = api.example.com", "notAfter=Oct  2 23:59:59 2026 GMT"]
+          },
+          {
+            "type": "command",
+            "command": "openssl x509 -noout -enddate -in /etc/nginx/tls/api.example.com.crt",
+            "output": ["notAfter=Dec 31 23:59:59 2026 GMT"]
+          }
+        ],
+        "choices": [
+          {
+            "id": "renewal-logs",
+            "label": "Read the renewal job's logs: why wasn't the new cert picked up?",
+            "next": "hook-failed",
+            "minutes": 3,
+            "verdict": "good",
+            "feedback": "A served-vs-on-disk mismatch means the reload step failed. The renewal logs will say why."
+          },
+          {
+            "id": "manual-cert",
+            "label": "Generate and install a new certificate by hand",
+            "next": "hook-failed",
+            "minutes": 15,
+            "verdict": "neutral",
+            "feedback": "Fifteen minutes spent producing a certificate you already had. The renewed one was on disk all along, and reloading still fails."
+          },
+          {
+            "id": "restart-nginx",
+            "label": "systemctl restart nginx so it re-reads the certificate",
+            "next": "restart-down",
+            "minutes": 2,
+            "verdict": "bad",
+            "feedback": "Restarting without testing the config first. You'll find out why that matters."
+          }
+        ]
+      },
+      "hook-failed": {
+        "title": "Renewal worked; the reload didn't",
+        "narrative": "Renewal ran three days ago and wrote the new certificate. Its deploy hook then ran nginx -t before reloading, the config test failed on an unrelated typo, and the reload was skipped. Nobody was alerted, so nginx kept serving the old certificate from memory until it expired.",
+        "evidence": [
+          {
+            "type": "logs",
+            "title": "journalctl -u cert-renew --since -3d",
+            "lines": [
+              "Sep 30 03:00:02 edge-01 cert-renew[2211]: renewing api.example.com (expires in 2d)",
+              "Sep 30 03:00:09 edge-01 cert-renew[2211]: certificate written to /etc/nginx/tls/api.example.com.crt",
+              "Sep 30 03:00:09 edge-01 cert-renew[2211]: deploy hook: nginx -t && nginx -s reload",
+              "Sep 30 03:00:09 edge-01 cert-renew[2211]: nginx: [emerg] unexpected \"}\" in /etc/nginx/conf.d/partners.conf:42",
+              "Sep 30 03:00:09 edge-01 cert-renew[2211]: nginx: configuration file /etc/nginx/nginx.conf test failed",
+              "Sep 30 03:00:09 edge-01 cert-renew[2211]: deploy hook exited 1; reload skipped"
+            ]
+          }
+        ],
+        "choices": [
+          {
+            "id": "fix-reload",
+            "label": "Fix partners.conf, confirm nginx -t passes, then reload gracefully",
+            "next": "resolved-reload",
+            "minutes": 6,
+            "verdict": "good",
+            "feedback": "A graceful reload picks up the new certificate without dropping a single connection."
+          },
+          {
+            "id": "restart-nginx",
+            "label": "Skip the config. Just systemctl restart nginx",
+            "next": "restart-down",
+            "minutes": 2,
+            "verdict": "bad",
+            "feedback": "The config is known to be broken, and a restart has to parse it."
+          }
+        ]
+      },
+      "restart-down": {
+        "title": "Partial outage → full outage",
+        "narrative": "nginx stops, then refuses to start: the same syntax error in partners.conf. Every site behind this edge is now down, not just the API. The status page goes red.",
+        "evidence": [
+          {
+            "type": "command",
+            "command": "systemctl status nginx --no-pager",
+            "output": [
+              "× nginx.service - A high performance web server and a reverse proxy server",
+              "     Active: failed (Result: exit-code) since Sat 2026-10-03 09:07:41 IST",
+              "    Process: 4127 ExecStartPre=/usr/sbin/nginx -t -q (code=exited, status=1/FAILURE)",
+              "Oct 03 09:07:41 edge-01 nginx[4127]: nginx: [emerg] unexpected \"}\" in /etc/nginx/conf.d/partners.conf:42"
+            ]
+          }
+        ],
+        "choices": [
+          {
+            "id": "fix-start",
+            "label": "Fix partners.conf, run nginx -t, start nginx",
+            "next": "resolved-late",
+            "minutes": 5,
+            "verdict": "good",
+            "feedback": "Right fix, applied after a much bigger outage than necessary."
+          },
+          {
+            "id": "restore-config",
+            "label": "Restore /etc/nginx from last night's backup and start nginx",
+            "next": "resolved-late",
+            "minutes": 10,
+            "verdict": "neutral",
+            "feedback": "It gets you running, but you're now guessing which other config changes you just reverted."
+          }
+        ]
+      },
+      "app-restart": {
+        "title": "Nothing changes",
+        "narrative": "The application pods restart cleanly and nothing improves. TLS terminates at the edge, before requests reach the app, and the handshake fails before HTTP even starts.",
+        "choices": [
+          {
+            "id": "inspect",
+            "label": "Inspect the certificate the edge is serving",
+            "next": "served-cert",
+            "minutes": 3,
+            "verdict": "good",
+            "feedback": "Follow the error to where it happens: the TLS handshake at the edge."
+          }
+        ]
+      },
+      "resolved-reload": {
+        "title": "Fixed with zero dropped connections",
+        "narrative": "",
+        "outcome": {
+          "result": "resolved",
+          "title": "Fixed with zero dropped connections",
+          "summary": "You found that the edge was serving an older certificate than the one on disk, traced it to a failed reload hook, fixed the typo, and reloaded gracefully. Follow-ups: the renewal hook must alert on failure, and monitoring should check the certificate being served, not the file on disk.",
+          "lessons": [
+            "Check what's served (openssl s_client), not what's on disk. The two can disagree.",
+            "Automation that fails silently is a time bomb. Renewal jobs must page when a step fails.",
+            "Prefer a graceful reload after nginx -t. A blind restart can turn a partial outage into a full one."
+          ]
+        }
+      },
+      "resolved-late": {
+        "title": "Recovered, after a full outage",
+        "narrative": "",
+        "outcome": {
+          "result": "resolved",
+          "title": "Recovered, after a full outage",
+          "summary": "Service is back and the renewed certificate is live, but a restart against a broken config took every site behind the edge down for several minutes. The review will cover both the silent hook failure and the unsafe restart.",
+          "lessons": [
+            "Always run nginx -t before a restart or reload. Most distro units already do, and that's why it refused to start.",
+            "Prefer reload over restart: in-flight connections survive and a bad config is rejected without stopping the server.",
+            "A served-vs-on-disk certificate check would have caught this three days earlier."
+          ]
+        }
+      },
+      "insecure": {
+        "title": "Outage traded for a security incident",
+        "narrative": "",
+        "outcome": {
+          "result": "escalated",
+          "title": "Outage traded for a security incident",
+          "summary": "Partners disabled certificate verification and traffic flowed again. Every partner integration was then open to interception until someone remembered to turn verification back on. Security has escalated, and the expired certificate is still being served.",
+          "lessons": [
+            "Never fix availability by removing a security control.",
+            "An expired certificate is an infrastructure problem: fix it at the edge, not in every client.",
+            "Find out what is actually being served before deciding anything."
+          ]
+        }
+      }
+    }
+  }
+]

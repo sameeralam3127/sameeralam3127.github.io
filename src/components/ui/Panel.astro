@@ -1,0 +1,30 @@
+---
+/**
+ * Dashboard panel. `title` renders a mono title bar like a Grafana panel;
+ * the optional `meta` slot sits at the right end of that bar.
+ */
+interface Props {
+  title?: string;
+  as?: "div" | "article" | "section" | "li";
+  class?: string;
+  bodyClass?: string;
+}
+
+const { title, as: Tag = "div", class: className, bodyClass = "p-4 sm:p-5" } = Astro.props;
+---
+
+<Tag class:list={["panel flex flex-col", className]}>
+  {title && (
+    <div class="panel-title">
+      <span class="truncate">{title}</span>
+      {Astro.slots.has("meta") && (
+        <span class="ml-auto flex shrink-0 items-center gap-2 whitespace-nowrap">
+          <slot name="meta" />
+        </span>
+      )}
+    </div>
+  )}
+  <div class:list={["flex-1", bodyClass]}>
+    <slot />
+  </div>
+</Tag>

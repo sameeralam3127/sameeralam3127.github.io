@@ -1,0 +1,210 @@
+---
+/**
+ * Grafana-style status board for this site's own pipeline. Commit, branch and
+ * run link are baked in at build time; build duration and Lighthouse scores are
+ * only known after the build, so they load from /build-meta.json at runtime.
+ */
+import Panel from "@/components/ui/Panel.astro";
+import SectionHeading from "@/components/ui/SectionHeading.astro";
+import StatusDot from "@/components/ui/StatusDot.astro";
+import { profile } from "@/data/profile";
+import { formatUtc, shortSha, timeAgo } from "@/lib/format";
+import { buildInfo, github } from "@/lib/site-data";
+
+const sha = buildInfo?.sha ?? null;
+const commitUrl = sha ? `${profile.site.repo}/commit/${sha}` : null;
+const deploys = github?.deploys ?? null;
+const deployRate = deploys ? Math.round((deploys.succeeded / deploys.total) * 100) : null;
+
+const lighthouse = [
+  { key: "performance", label: "Performance" },
+  { key: "accessibility", label: "Accessibility" },
+  { key: "bestPractices", label: "Best practices" },
+  { key: "seo", label: "SEO" },
+] as const;
+---
+
+<section aria-labelledby="status" class="mx-auto max-w-6xl px-4 pt-24 sm:px-6" data-reveal>
+  <SectionHeading
+    id="status"
+    command="kubectl get --raw /healthz?verbose"
+    title="System status"
+    lede="This site’s own telemetry. The CI pipeline writes these numbers at build time, so they’re as current as the last deploy."
+  />
+
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4" data-status-board>
+    <Panel title="deploy">
+      <span slot="meta" class="inline-flex items-center gap-1.5 text-ok">
+        <StatusDot state="ok" pulse />
+        live
+      </span>
+      <p class="font-mono text-2xl font-semibold text-text">
+        {sha && commitUrl ? (
+          <a href={commitUrl} class="hover:text-accent" rel="noopener">
+            {shortSha(sha)}
+          </a>
+        ) : (
+          "local"
+        )}
+      </p>
+      <p class="mt-1 font-mono text-xs text-muted">
+        {buildInfo?.branch ?? "unknown branch"}
+        {buildInfo?.runUrl && (
+          <>
+            {" · "}
+            <a href={buildInfo.runUrl} class="link" rel="noopener">
+              workflow run
+            </a>
+          </>
+        )}
+      </p>
+    </Panel>
+
+    <Panel title="last deploy">
+      <p class="font-mono text-2xl font-semibold text-text">
+        <time
+          datetime={buildInfo?.startedAt}
+          data-meta="deployedAgo"
+          title={buildInfo ? formatUtc(buildInfo.startedAt) : undefined}
+        >
+          {buildInfo ? timeAgo(buildInfo.startedAt) : "—"}
+        </time>
+      </p>
+      <p class="mt-1 font-mono text-xs text-muted" data-meta="deployedAt">
+        {buildInfo ? formatUtc(buildInfo.startedAt) : "build time unknown"}
+      </p>
+    </Panel>
+
+    <Panel title="build duration">
+      <p class="font-mono text-2xl font-semibold text-text" data-meta="duration">
+        —
+      </p>
+      <p class="mt-1 font-mono text-xs text-muted">data fetch → astro build</p>
+    </Panel>
+
+    <Panel title="deploy success">
+      {deploys && deployRate !== null ? (
+        <>
+          <p class="font-mono text-2xl font-semibold text-text">{deployRate}%</p>
+          <p class="mt-1 font-mono text-xs text-muted">
+            {deploys.succeeded}/{deploys.total} recent runs
+          </p>
+          <div
+            class="mt-3 h-1.5 overflow-hidden rounded-full bg-panel-2"
+            role="meter"
+            aria-label="Deploy success rate"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={deployRate}
+          >
+            <div
+              class:list={[
+                "h-full rounded-full",
+                deployRate >= 95 ? "bg-ok" : deployRate >= 80 ? "bg-warn" : "bg-crit",
+              ]}
+              style={`width: ${deployRate}%`}
+            />
+          </div>
+        </>
+      ) : (
+        <>
+          <p class="font-mono text-2xl font-semibold text-text">—</p>
+          <p class="mt-1 font-mono text-xs text-muted">no deploy history yet</p>
+        </>
+      )}
+    </Panel>
+
+    <Panel title="lighthouse (median of CI runs)" class="sm:col-span-2 lg:col-span-4">
+      <span slot="meta" data-meta="lighthouseState">
+        pending
+      </span>
+      <ul class="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-4">
+        {lighthouse.map(({ key, label }) => (
+          <li data-score={key}>
+            <div class="flex items-baseline justify-between font-mono text-xs">
+              <span class="text-muted">{label}</span>
+              <span class="text-lg font-semibold text-text" data-score-value>
+                —
+              </span>
+            </div>
+            <div
+              class="mt-2 h-1.5 overflow-hidden rounded-full bg-panel-2"
+              role="meter"
+              aria-label={`Lighthouse ${label} score`}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              data-score-meter
+            >
+              <div
+                class="h-full w-0 rounded-full bg-muted transition-[width] duration-700"
+                data-score-bar
+              />
+            </div>
+          </li>
+        ))}
+      </ul>
+      <p class="mt-4 font-mono text-xs text-muted" data-meta="lighthouseNote">
+        Scores are recorded by Lighthouse CI during deploy.
+      </p>
+    </Panel>
+  </div>
+</section>
+
+<script>
+  import type { BuildMeta, LighthouseScores } from "@/lib/generated-types";
+  import { formatDuration, timeAgo } from "@/lib/format";
+
+  const board = document.querySelector<HTMLElement>("[data-status-board]");
+
+  const set = (name: string, text: string) => {
+    const el = board?.querySelector<HTMLElement>(`[data-meta="${name}"]`);
+    if (el) el.textContent = text;
+  };
+
+  const tone = (score: number) => (score >= 90 ? "bg-ok" : score >= 50 ? "bg-warn" : "bg-crit");
+
+  const renderScores = (scores: LighthouseScores) => {
+    board?.querySelectorAll<HTMLElement>("[data-score]").forEach((item) => {
+      const key = item.dataset.score as keyof LighthouseScores;
+      const score = scores[key];
+      const value = item.querySelector<HTMLElement>("[data-score-value]");
+      const meter = item.querySelector<HTMLElement>("[data-score-meter]");
+      const bar = item.querySelector<HTMLElement>("[data-score-bar]");
+      if (value) value.textContent = String(score);
+      meter?.setAttribute("aria-valuenow", String(score));
+      if (bar) {
+        bar.classList.remove("bg-muted");
+        bar.classList.add(tone(score));
+        bar.style.width = `${score}%`;
+      }
+    });
+  };
+
+  const load = async () => {
+    if (!board) return;
+    try {
+      const res = await fetch("/build-meta.json", { cache: "no-store" });
+      if (!res.ok) throw new Error(String(res.status));
+      const meta = (await res.json()) as BuildMeta;
+
+      set("duration", formatDuration(meta.durationMs));
+      set("deployedAgo", timeAgo(meta.finishedAt));
+      if (meta.lighthouse) {
+        renderScores(meta.lighthouse);
+        set("lighthouseState", "scored");
+        set("lighthouseNote", "Hard budget in CI: every category must score 95 or more.");
+      } else {
+        set("lighthouseState", "not scored");
+        set("lighthouseNote", "This build was not audited (local or preview build).");
+      }
+
+      // Keep the relative time honest while the page stays open.
+      window.setInterval(() => set("deployedAgo", timeAgo(meta.finishedAt)), 60_000);
+    } catch {
+      set("lighthouseState", "unavailable");
+      set("lighthouseNote", "Build metadata isn’t available for this build.");
+    }
+  };
+
+  void load();
+</script>

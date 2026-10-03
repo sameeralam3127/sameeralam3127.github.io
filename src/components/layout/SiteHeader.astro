@@ -1,0 +1,130 @@
+---
+import ThemeToggle from "./ThemeToggle.astro";
+import Icon from "@/components/ui/Icon.astro";
+import StatusDot from "@/components/ui/StatusDot.astro";
+import { navigation, primaryNavigation } from "@/data/navigation";
+import { profile } from "@/data/profile";
+---
+
+<header class="sticky top-0 z-50 border-b border-line bg-bg/85 backdrop-blur supports-[backdrop-filter]:bg-bg/70">
+  <div class="mx-auto flex h-14 max-w-6xl items-center gap-4 px-4 sm:px-6">
+    <a
+      href="/"
+      class="flex min-w-0 items-center gap-2 font-mono text-sm text-text hover:text-accent"
+      aria-label={`${profile.name}, home`}
+    >
+      <StatusDot state="ok" pulse />
+      <span class="flex min-w-0">
+        <span class="text-ok">{profile.handle.replace(/\d+$/, "")}</span>
+        <span class="truncate text-muted">@infra:~$</span>
+      </span>
+    </a>
+
+    <nav aria-label="Primary" class="ml-auto hidden lg:block">
+      <ul class="flex items-center gap-0.5 font-mono text-[13px]">
+        {primaryNavigation.map((item) => (
+          <li>
+            <a
+              href={item.href}
+              class="rounded px-2 py-1.5 text-muted transition-colors hover:bg-panel-2 hover:text-text"
+            >
+              {item.label.toLowerCase()}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="ml-auto flex items-center gap-2 lg:ml-1">
+      <button
+        type="button"
+        class="hidden h-9 items-center gap-1.5 rounded border border-line px-2.5 font-mono text-xs text-muted transition-colors hover:border-line-strong hover:text-text sm:inline-flex"
+        aria-label="Open command palette"
+        aria-keyshortcuts="Control+K Meta+K"
+        data-palette-trigger
+      >
+        <Icon name="terminal" size={14} />
+        <kbd class="font-mono" data-palette-key>
+          Ctrl K
+        </kbd>
+      </button>
+      <ThemeToggle />
+      <button
+        type="button"
+        class="inline-flex h-9 w-9 items-center justify-center rounded border border-line text-muted hover:text-text lg:hidden"
+        aria-expanded="false"
+        aria-controls="mobile-nav"
+        aria-label="Open menu"
+        data-menu-toggle
+      >
+        <Icon name="menu" class="menu-open-icon" />
+        <Icon name="close" class="menu-close-icon hidden" />
+      </button>
+    </div>
+  </div>
+
+  <nav id="mobile-nav" aria-label="Primary" class="hidden border-t border-line lg:hidden" data-menu>
+    <ul class="mx-auto grid max-w-6xl grid-cols-2 px-4 py-2 font-mono text-sm sm:grid-cols-3">
+      {navigation.map((item) => (
+        <li>
+          <a
+            href={item.href}
+            class="block rounded px-2 py-2.5 text-muted hover:bg-panel-2 hover:text-text"
+          >
+            <span class="text-ok">›</span> {item.label.toLowerCase()}
+          </a>
+        </li>
+      ))}
+      <li class="sm:hidden">
+        <button
+          type="button"
+          class="block w-full rounded px-2 py-2.5 text-left text-muted hover:bg-panel-2 hover:text-text"
+          data-palette-trigger
+        >
+          <span class="text-ok">›</span> command palette
+        </button>
+      </li>
+    </ul>
+  </nav>
+</header>
+
+<script>
+  import { PALETTE_OPEN_EVENT } from "@/lib/palette";
+
+  // Show the right shortcut for the platform.
+  if (/Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)) {
+    document.querySelectorAll("[data-palette-key]").forEach((el) => (el.textContent = "⌘K"));
+  }
+
+  document.querySelectorAll("[data-palette-trigger]").forEach((el) => {
+    el.addEventListener("click", () => {
+      // If the palette island hasn't hydrated yet, it opens itself on mount.
+      window.__paletteRequested = true;
+      document.dispatchEvent(new CustomEvent(PALETTE_OPEN_EVENT));
+    });
+  });
+
+  const button = document.querySelector<HTMLButtonElement>("[data-menu-toggle]");
+  const menu = document.querySelector<HTMLElement>("[data-menu]");
+
+  if (button && menu) {
+    const setOpen = (open: boolean) => {
+      menu.classList.toggle("hidden", !open);
+      button.setAttribute("aria-expanded", String(open));
+      button.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+      button.querySelector(".menu-open-icon")?.classList.toggle("hidden", open);
+      button.querySelector(".menu-close-icon")?.classList.toggle("hidden", !open);
+    };
+
+    button.addEventListener("click", () => setOpen(menu.classList.contains("hidden")));
+    menu.addEventListener("click", (event) => {
+      if ((event.target as HTMLElement).closest("a, button")) setOpen(false);
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !menu.classList.contains("hidden")) {
+        setOpen(false);
+        button.focus();
+      }
+    });
+  }
+</script>

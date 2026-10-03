@@ -1,0 +1,259 @@
+@import "tailwindcss";
+
+/*
+ * Theme tokens. Dark is the default; `[data-theme="light"]` on <html> swaps
+ * the palette. Components use the Tailwind utilities generated from these
+ * (bg-bg, text-muted, border-line, text-accent, ...), never raw colours.
+ */
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --c-bg: #111217;
+  --c-panel: #181b1f;
+  --c-panel-2: #212429;
+  --c-line: #2a2e35;
+  --c-line-strong: #3d424b;
+  --c-text: #e6e9ef;
+  --c-muted: #a0a8b6;
+  --c-accent: #6e9fff;
+  --c-accent-ink: #0b1020;
+  --c-ok: #73bf69;
+  --c-warn: #ff9830;
+  --c-crit: #f66a77;
+  --c-info: #5ccfe6;
+  --c-grid: rgb(110 159 255 / 0.035);
+  --c-scan: rgb(255 255 255 / 0.01);
+  --c-glow: rgb(115 191 105 / 0.55);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --c-bg: #f4f6f8;
+  --c-panel: #ffffff;
+  --c-panel-2: #eef1f5;
+  --c-line: #d8dee6;
+  --c-line-strong: #b9c3cf;
+  --c-text: #111821;
+  --c-muted: #4a5767;
+  --c-accent: #1f5fd1;
+  --c-accent-ink: #ffffff;
+  --c-ok: #2b7a2f;
+  --c-warn: #9a5100;
+  --c-crit: #c0262f;
+  --c-info: #0b7285;
+  --c-grid: rgb(31 95 209 / 0.06);
+  --c-scan: transparent;
+  --c-glow: rgb(43 122 47 / 0.35);
+}
+
+@theme inline {
+  --color-bg: var(--c-bg);
+  --color-panel: var(--c-panel);
+  --color-panel-2: var(--c-panel-2);
+  --color-line: var(--c-line);
+  --color-line-strong: var(--c-line-strong);
+  --color-text: var(--c-text);
+  --color-muted: var(--c-muted);
+  --color-accent: var(--c-accent);
+  --color-accent-ink: var(--c-accent-ink);
+  --color-ok: var(--c-ok);
+  --color-warn: var(--c-warn);
+  --color-crit: var(--c-crit);
+  --color-info: var(--c-info);
+}
+
+@theme {
+  --font-sans: "IBM Plex Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+
+@custom-variant light (&:where([data-theme="light"], [data-theme="light"] *));
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--c-bg);
+    color: var(--c-text);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    min-height: 100dvh;
+    /* Console grid, fixed so it reads as the "room" behind the panels. */
+    background-image:
+      linear-gradient(var(--c-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--c-grid) 1px, transparent 1px);
+    background-size: 32px 32px;
+    background-attachment: fixed;
+  }
+
+  /* Static scanlines; purely decorative and invisible in light mode. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 60;
+    background: repeating-linear-gradient(
+      to bottom,
+      var(--c-scan) 0,
+      var(--c-scan) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+  }
+
+  ::selection {
+    background: var(--c-accent);
+    color: var(--c-accent-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--c-accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  a {
+    text-underline-offset: 3px;
+  }
+
+  code,
+  kbd,
+  pre,
+  samp {
+    font-family: var(--font-mono);
+  }
+
+  /* Literal output matters more than pretty arrows: "=>" must stay "=>". */
+  code,
+  kbd,
+  pre,
+  samp,
+  .font-mono {
+    font-variant-ligatures: none;
+  }
+}
+
+@layer components {
+  /* Grafana-style panel: hairline border, title bar slot, flat fill. */
+  .panel {
+    background-color: var(--c-panel);
+    border: 1px solid var(--c-line);
+    border-radius: 6px;
+  }
+
+  .panel-title {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    color: var(--c-muted);
+    border-bottom: 1px solid var(--c-line);
+    padding: 0.5rem 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .link {
+    color: var(--c-accent);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--c-accent) 40%, transparent);
+  }
+
+  .link:hover {
+    text-decoration-color: currentColor;
+  }
+}
+
+/* Shiki code blocks (dual theme via CSS variables). */
+.astro-code {
+  background-color: var(--c-panel) !important;
+}
+.astro-code,
+.astro-code span {
+  color: var(--shiki-dark);
+}
+:root[data-theme="light"] .astro-code,
+:root[data-theme="light"] .astro-code span {
+  color: var(--shiki-light);
+}
+
+/* Status LED. `--led` is set per state by StatusDot.astro. */
+.led {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: var(--led, var(--c-ok));
+  box-shadow: 0 0 0 0 var(--led, var(--c-glow));
+  flex: none;
+}
+
+.led[data-pulse] {
+  animation: led-pulse 2.4s ease-out infinite;
+}
+
+@keyframes led-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--led, var(--c-ok)) 60%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 6px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+.cursor {
+  display: inline-block;
+  width: 0.6em;
+  height: 1.1em;
+  vertical-align: text-bottom;
+  background: var(--c-accent);
+  animation: blink 1.1s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/*
+ * Section reveal. Content is only hidden when JS has marked <html class="js">,
+ * so it stays visible without JavaScript. Reduced motion disables it entirely.
+ */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
+}
+
+.js [data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .js [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .led[data-pulse],
+  .cursor {
+    animation: none;
+  }
+}
