@@ -18,7 +18,7 @@ export type Line = Segment[];
 export type Effect =
   | { type: "clear" }
   | { type: "navigate"; href: string }
-  | { type: "theme"; theme: "light" | "dark" | "toggle" };
+  | { type: "theme"; theme: "light" | "dark" | "system" | "toggle" };
 
 export interface CommandResult {
   lines: Line[];
@@ -319,13 +319,16 @@ const commands: Command[] = [
   },
   {
     name: "theme",
-    summary: "theme [light|dark] — switch colour scheme",
-    args: () => ["light", "dark"],
+    summary: "theme [light|dark|system] — switch colour scheme",
+    args: () => ["light", "dark", "system"],
     run: (args) => {
       const choice = args[0];
-      const theme = choice === "light" || choice === "dark" ? choice : "toggle";
+      const theme =
+        choice === "light" || choice === "dark" || choice === "system" ? choice : "toggle";
+      const label =
+        theme === "toggle" ? "toggled" : theme === "system" ? "following your OS" : theme;
       return {
-        lines: [line(t(`theme → ${theme === "toggle" ? "toggled" : theme}`, "muted"))],
+        lines: [line(t(`theme → ${label}`, "muted"))],
         effect: { type: "theme", theme },
       };
     },

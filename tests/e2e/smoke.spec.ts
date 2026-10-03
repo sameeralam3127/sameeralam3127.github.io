@@ -146,13 +146,29 @@ test.describe("interactive features", () => {
     await expect(page.getByRole("button", { name: "replay" })).toBeVisible();
   });
 
-  test("theme toggle persists across reloads", async ({ page }) => {
+  test("theme follows the OS by default, and live", async ({ page }) => {
+    const html = page.locator("html");
+    await page.emulateMedia({ colorScheme: "light" });
     await page.goto("/");
-    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-    await page.getByRole("button", { name: "Switch to light theme" }).click();
-    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+    await expect(html).toHaveAttribute("data-theme", "light");
+
+    await page.emulateMedia({ colorScheme: "dark" });
+    await expect(html).toHaveAttribute("data-theme", "dark");
+    await page.emulateMedia({ colorScheme: "light" });
+    await expect(html).toHaveAttribute("data-theme", "light");
+  });
+
+  test("an explicit theme choice persists and overrides the OS", async ({ page }) => {
+    const html = page.locator("html");
+    await page.emulateMedia({ colorScheme: "light" });
+    await page.goto("/");
+    await page.getByRole("button", { name: "Switch to dark theme" }).click();
+    await expect(html).toHaveAttribute("data-theme", "dark");
+
     await page.reload();
-    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+    await expect(html).toHaveAttribute("data-theme", "dark");
+    await page.emulateMedia({ colorScheme: "light" });
+    await expect(html).toHaveAttribute("data-theme", "dark");
   });
 
   test("architecture diagram shows details for the selected step", async ({ page }) => {

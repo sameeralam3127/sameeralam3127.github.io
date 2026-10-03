@@ -113,7 +113,7 @@ export default function IncidentSimulator() {
             <button
               type="button"
               onClick={() => begin(s)}
-              className="mt-4 self-start rounded bg-accent px-3.5 py-2 font-mono text-sm font-medium text-accent-ink hover:opacity-90"
+              className="mt-4 self-start rounded-full bg-btn px-4 py-2 font-mono text-sm font-medium text-btn-ink hover:opacity-85"
             >
               acknowledge page →
             </button>
@@ -230,14 +230,14 @@ export default function IncidentSimulator() {
               <button
                 type="button"
                 onClick={() => begin(scenario)}
-                className="rounded bg-accent px-3.5 py-2 font-mono text-sm font-medium text-accent-ink hover:opacity-90"
+                className="rounded-full bg-btn px-4 py-2 font-mono text-sm font-medium text-btn-ink hover:opacity-85"
               >
                 replay
               </button>
               <button
                 type="button"
                 onClick={reset}
-                className="rounded border border-line-strong px-3.5 py-2 font-mono text-sm text-text hover:border-accent hover:text-accent"
+                className="rounded-full border-2 border-text px-4 py-1.5 font-mono text-sm text-text transition-colors hover:bg-panel-2"
               >
                 another scenario
               </button>

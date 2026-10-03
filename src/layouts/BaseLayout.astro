@@ -46,7 +46,7 @@ const paletteItems = buildPaletteItems(await getDeepDiveSlugs());
 ---
 
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -76,32 +76,33 @@ const paletteItems = buildPaletteItems(await getDeepDiveSlugs());
     <meta name="twitter:image:alt" content={imageAlt} />
     {structuredData && <script type="application/ld+json" set:html={structuredData} />}
     <meta name="theme-color" content="#111217" media="(prefers-color-scheme: dark)" />
-    <meta name="theme-color" content="#f4f6f8" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
     <meta name="generator" content={Astro.generator} />
 
     <!--
-      Runs before first paint: applies the saved theme (dark by default) and
+      Runs before first paint: applies the saved theme (or the OS preference) and
       marks JS as available so reveal animations never hide content without it.
     -->
     <script is:inline>
       (() => {
         const root = document.documentElement;
         root.classList.add("js");
-        let theme = "dark";
+        let saved = null;
         try {
-          const saved = localStorage.getItem("theme");
-          if (saved === "light" || saved === "dark") theme = saved;
+          saved = localStorage.getItem("theme");
         } catch {
-          /* storage unavailable: keep the default */
+          /* storage unavailable: follow the OS */
         }
-        root.dataset.theme = theme;
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        root.dataset.theme =
+          saved === "light" || saved === "dark" ? saved : prefersDark ? "dark" : "light";
       })();
     </script>
   </head>
   <body class="flex min-h-dvh flex-col antialiased">
     <a
       href="#main"
-      class="sr-only z-[70] rounded bg-accent px-3 py-2 font-mono text-sm text-accent-ink focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+      class="sr-only z-[70] rounded-full bg-btn px-4 py-2 font-mono text-sm text-btn-ink focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
     >
       Skip to content
     </a>

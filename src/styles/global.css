@@ -1,11 +1,67 @@
 @import "tailwindcss";
 
 /*
- * Theme tokens. Dark is the default; `[data-theme="light"]` on <html> swaps
- * the palette. Components use the Tailwind utilities generated from these
- * (bg-bg, text-muted, border-line, text-accent, ...), never raw colours.
+ * Theme tokens. Light is the base palette (clean AWS-style surfaces); dark
+ * applies when the visitor's OS prefers it, or when they pick it with the
+ * toggle. The inline script in BaseLayout resolves the theme before first
+ * paint and follows OS changes live (e.g. macOS "Auto" appearance); the media
+ * query below covers visitors without JavaScript.
  */
 :root,
+:root[data-theme="light"] {
+  color-scheme: light;
+  --c-bg: #ffffff;
+  --c-panel: #ffffff;
+  --c-panel-2: #f2f3f5;
+  --c-line: #e3e5e8;
+  --c-line-strong: #c4c9d0;
+  --c-text: #161d26;
+  --c-muted: #535b66;
+  --c-accent: #5b3ae0;
+  --c-accent-ink: #ffffff;
+  --c-btn: #161d26;
+  --c-btn-ink: #ffffff;
+  --c-ok: #1d7a32;
+  --c-warn: #8a5a00;
+  --c-crit: #c4271b;
+  --c-info: #0a6bbf;
+  --c-grid: transparent;
+  --c-scan: transparent;
+  --c-glow: rgb(29 122 50 / 0.35);
+  --c-shadow: 0 1px 2px rgb(22 29 38 / 0.05), 0 4px 16px rgb(22 29 38 / 0.04);
+  --c-glow-1: rgb(200 240 110 / 0.55);
+  --c-glow-2: rgb(150 230 200 / 0.45);
+  --c-glow-3: rgb(195 175 255 / 0.45);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --c-bg: #111217;
+    --c-panel: #181b1f;
+    --c-panel-2: #212429;
+    --c-line: #2a2e35;
+    --c-line-strong: #3d424b;
+    --c-text: #e6e9ef;
+    --c-muted: #a0a8b6;
+    --c-accent: #6e9fff;
+    --c-accent-ink: #0b1020;
+    --c-btn: #6e9fff;
+    --c-btn-ink: #0b1020;
+    --c-ok: #73bf69;
+    --c-warn: #ff9830;
+    --c-crit: #f66a77;
+    --c-info: #5ccfe6;
+    --c-grid: rgb(110 159 255 / 0.035);
+    --c-scan: rgb(255 255 255 / 0.01);
+    --c-glow: rgb(115 191 105 / 0.55);
+    --c-shadow: none;
+    --c-glow-1: rgb(110 159 255 / 0.14);
+    --c-glow-2: rgb(115 191 105 / 0.1);
+    --c-glow-3: rgb(150 110 255 / 0.14);
+  }
+}
+
 :root[data-theme="dark"] {
   color-scheme: dark;
   --c-bg: #111217;
@@ -17,6 +73,8 @@
   --c-muted: #a0a8b6;
   --c-accent: #6e9fff;
   --c-accent-ink: #0b1020;
+  --c-btn: #6e9fff;
+  --c-btn-ink: #0b1020;
   --c-ok: #73bf69;
   --c-warn: #ff9830;
   --c-crit: #f66a77;
@@ -24,26 +82,10 @@
   --c-grid: rgb(110 159 255 / 0.035);
   --c-scan: rgb(255 255 255 / 0.01);
   --c-glow: rgb(115 191 105 / 0.55);
-}
-
-:root[data-theme="light"] {
-  color-scheme: light;
-  --c-bg: #f4f6f8;
-  --c-panel: #ffffff;
-  --c-panel-2: #eef1f5;
-  --c-line: #d8dee6;
-  --c-line-strong: #b9c3cf;
-  --c-text: #111821;
-  --c-muted: #4a5767;
-  --c-accent: #1f5fd1;
-  --c-accent-ink: #ffffff;
-  --c-ok: #2b7a2f;
-  --c-warn: #9a5100;
-  --c-crit: #c0262f;
-  --c-info: #0b7285;
-  --c-grid: rgb(31 95 209 / 0.06);
-  --c-scan: transparent;
-  --c-glow: rgb(43 122 47 / 0.35);
+  --c-shadow: none;
+  --c-glow-1: rgb(110 159 255 / 0.14);
+  --c-glow-2: rgb(115 191 105 / 0.1);
+  --c-glow-3: rgb(150 110 255 / 0.14);
 }
 
 @theme inline {
@@ -56,6 +98,8 @@
   --color-muted: var(--c-muted);
   --color-accent: var(--c-accent);
   --color-accent-ink: var(--c-accent-ink);
+  --color-btn: var(--c-btn);
+  --color-btn-ink: var(--c-btn-ink);
   --color-ok: var(--c-ok);
   --color-warn: var(--c-warn);
   --color-crit: var(--c-crit);
@@ -143,7 +187,8 @@
   .panel {
     background-color: var(--c-panel);
     border: 1px solid var(--c-line);
-    border-radius: 6px;
+    border-radius: 10px;
+    box-shadow: var(--c-shadow);
   }
 
   .panel-title {
@@ -175,11 +220,53 @@
 }
 .astro-code,
 .astro-code span {
+  color: var(--shiki-light);
+}
+:root[data-theme="dark"] .astro-code,
+:root[data-theme="dark"] .astro-code span {
   color: var(--shiki-dark);
 }
-:root[data-theme="light"] .astro-code,
-:root[data-theme="light"] .astro-code span {
-  color: var(--shiki-light);
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .astro-code,
+  :root:not([data-theme="light"]) .astro-code span {
+    color: var(--shiki-dark);
+  }
+}
+
+/*
+ * Hero backdrop: soft lime, mint and lavender washes (AWS-style) that drift
+ * and slowly shift hue. Purely decorative; frozen for reduced motion.
+ */
+.hero-glow {
+  /* Fixed size (not % of the hero) so font loading can't resize it: CLS stays 0. */
+  position: absolute;
+  top: -8rem;
+  left: -10%;
+  right: -10%;
+  height: 58rem;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(42% 55% at 12% 22%, var(--c-glow-1), transparent 70%),
+    radial-gradient(36% 50% at 52% 8%, var(--c-glow-2), transparent 70%),
+    radial-gradient(40% 60% at 92% 30%, var(--c-glow-3), transparent 70%);
+  mask-image: linear-gradient(to bottom, #000 50%, transparent);
+  will-change: transform, filter;
+  animation: glow-drift 20s ease-in-out infinite alternate;
+}
+
+@keyframes glow-drift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: hue-rotate(0deg);
+  }
+  50% {
+    transform: translate3d(3%, 2%, 0) scale(1.06);
+  }
+  100% {
+    transform: translate3d(-3%, 1%, 0) scale(1.02);
+    filter: hue-rotate(28deg);
+  }
 }
 
 /* Status LED. `--led` is set per state by StatusDot.astro. */
@@ -253,7 +340,8 @@
   }
 
   .led[data-pulse],
-  .cursor {
+  .cursor,
+  .hero-glow {
     animation: none;
   }
 }

@@ -3,7 +3,7 @@
 /** Dispatched on `document` to open the palette (e.g. from the header button). */
 export const PALETTE_OPEN_EVENT = "palette:open";
 
-export type PaletteAction = "toggle-theme" | "copy-email";
+export type PaletteAction = "toggle-theme" | "system-theme" | "copy-email";
 
 export interface PaletteItem {
   id: string;
