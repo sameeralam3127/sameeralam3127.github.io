@@ -8,86 +8,81 @@ import { getDeepDiveSlugs } from "@/lib/deep-dives";
 const deepDives = await getDeepDiveSlugs();
 ---
 
-<div class="relative isolate overflow-hidden">
-  <div class="hero-glow" aria-hidden="true"></div>
-  <section
-    aria-labelledby="hero-title"
-    class="mx-auto max-w-6xl px-4 pt-10 sm:px-6 sm:pt-16 lg:pt-20"
-  >
-    <div class="grid grid-cols-1 items-start gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-12">
-      <div>
-        <p class="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs text-muted">
-          <span class="inline-flex items-center gap-2 text-ok">
-            <StatusDot state="ok" pulse />
-            online
-          </span>
-          <span aria-hidden="true">·</span>
-          <span>{profile.location}</span>
-          <span aria-hidden="true">·</span>
-          <span>IST (UTC+5:30)</span>
-        </p>
+<section
+  aria-labelledby="hero-title"
+  data-tint="lime"
+  class="mx-auto max-w-6xl px-4 pt-10 sm:px-6 sm:pt-16 lg:pt-20"
+>
+  <div class="grid grid-cols-1 items-start gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-12">
+    <div>
+      <p class="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs text-muted">
+        <span class="inline-flex items-center gap-2 text-ok">
+          <StatusDot state="ok" pulse />
+          online
+        </span>
+        <span aria-hidden="true">·</span>
+        <span>{profile.location}</span>
+        <span aria-hidden="true">·</span>
+        <span>IST (UTC+5:30)</span>
+      </p>
 
-        <h1
-          id="hero-title"
-          class="mt-5 text-4xl font-semibold tracking-tight text-text sm:text-5xl"
+      <h1 id="hero-title" class="mt-5 text-4xl font-semibold tracking-tight text-text sm:text-5xl">
+        {profile.name}
+      </h1>
+      <p class="mt-2 font-mono text-base text-accent sm:text-lg">{profile.title}</p>
+
+      <p class="mt-6 max-w-xl text-lg leading-relaxed text-text/90">{profile.headline}</p>
+
+      <ul class="mt-6 flex flex-wrap gap-1.5" aria-label="Focus areas">
+        {profile.focus.map((item) => (
+          <li class="rounded border border-line bg-panel/60 px-2 py-0.5 font-mono text-xs text-muted">
+            {item}
+          </li>
+        ))}
+      </ul>
+
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a
+          href={profile.resume.docx}
+          download
+          class="inline-flex items-center gap-2 rounded-full bg-btn px-5 py-2.5 font-mono text-sm font-medium text-btn-ink transition-opacity hover:opacity-85"
         >
-          {profile.name}
-        </h1>
-        <p class="mt-2 font-mono text-base text-accent sm:text-lg">{profile.title}</p>
-
-        <p class="mt-6 max-w-xl text-lg leading-relaxed text-text/90">{profile.headline}</p>
-
-        <ul class="mt-6 flex flex-wrap gap-1.5" aria-label="Focus areas">
-          {profile.focus.map((item) => (
-            <li class="rounded border border-line bg-panel/60 px-2 py-0.5 font-mono text-xs text-muted">
-              {item}
-            </li>
-          ))}
-        </ul>
-
-        <div class="mt-8 flex flex-wrap gap-3">
+          <Icon name="download" />
+          resume.docx
+        </a>
+        {profile.resume.pdf && (
           <a
-            href={profile.resume.docx}
+            href={profile.resume.pdf}
             download
-            class="inline-flex items-center gap-2 rounded-full bg-btn px-5 py-2.5 font-mono text-sm font-medium text-btn-ink transition-opacity hover:opacity-85"
-          >
-            <Icon name="download" />
-            resume.docx
-          </a>
-          {profile.resume.pdf && (
-            <a
-              href={profile.resume.pdf}
-              download
-              class="inline-flex items-center gap-2 rounded-full border-2 border-text px-5 py-2 font-mono text-sm text-text transition-colors hover:bg-panel-2"
-            >
-              <Icon name="download" />
-              resume.pdf
-            </a>
-          )}
-          <a
-            href="#contact"
             class="inline-flex items-center gap-2 rounded-full border-2 border-text px-5 py-2 font-mono text-sm text-text transition-colors hover:bg-panel-2"
           >
-            get in touch
-            <Icon name="arrow" />
+            <Icon name="download" />
+            resume.pdf
           </a>
-        </div>
+        )}
+        <a
+          href="#contact"
+          class="inline-flex items-center gap-2 rounded-full border-2 border-text px-5 py-2 font-mono text-sm text-text transition-colors hover:bg-panel-2"
+        >
+          get in touch
+          <Icon name="arrow" />
+        </a>
       </div>
-
-      <!-- Server-rendered with a first command already run, then hydrated when idle. -->
-      <Terminal client:idle deepDives={deepDives} />
     </div>
 
-    <dl class="mt-12 grid grid-cols-2 gap-px overflow-hidden rounded-[10px] border border-line bg-line shadow-[var(--c-shadow)] lg:grid-cols-4">
-      {profile.stats.map((stat) => (
-        <div class="flex flex-col-reverse justify-end bg-panel p-4 sm:p-5">
-          <dt class="mt-1 text-xs text-muted sm:text-sm">{stat.label}</dt>
-          <dd class="flex items-baseline font-mono text-2xl font-semibold text-text sm:text-3xl">
-            {stat.value}
-            {stat.unit && <span class="ml-1 text-base text-accent">{stat.unit}</span>}
-          </dd>
-        </div>
-      ))}
-    </dl>
-  </section>
-</div>
+    <!-- Server-rendered with a first command already run, then hydrated when idle. -->
+    <Terminal client:idle deepDives={deepDives} />
+  </div>
+
+  <dl class="mt-12 grid grid-cols-2 gap-px overflow-hidden rounded-[10px] border border-line bg-line shadow-[var(--c-shadow)] lg:grid-cols-4">
+    {profile.stats.map((stat) => (
+      <div class="flex flex-col-reverse justify-end bg-panel p-4 sm:p-5">
+        <dt class="mt-1 text-xs text-muted sm:text-sm">{stat.label}</dt>
+        <dd class="flex items-baseline font-mono text-2xl font-semibold text-text sm:text-3xl">
+          {stat.value}
+          {stat.unit && <span class="ml-1 text-base text-accent">{stat.unit}</span>}
+        </dd>
+      </div>
+    ))}
+  </dl>
+</section>

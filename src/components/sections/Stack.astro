@@ -4,7 +4,12 @@ import SectionHeading from "@/components/ui/SectionHeading.astro";
 import { profile } from "@/data/profile";
 ---
 
-<section aria-labelledby="stack" class="mx-auto max-w-6xl px-4 pt-24 sm:px-6" data-reveal>
+<section
+  aria-labelledby="stack"
+  data-tint="sky"
+  class="mx-auto max-w-6xl px-4 pt-24 sm:px-6"
+  data-reveal
+>
   <SectionHeading
     id="stack"
     command="kubectl get skills --all-namespaces"

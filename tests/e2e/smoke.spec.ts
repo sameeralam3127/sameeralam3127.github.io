@@ -158,6 +158,18 @@ test.describe("interactive features", () => {
     await expect(html).toHaveAttribute("data-theme", "light");
   });
 
+  test("page colour changes as sections scroll into view", async ({ page }) => {
+    const html = page.locator("html");
+    await page.goto("/");
+    await expect(html).toHaveAttribute("data-tint", "lime");
+    await page.locator("#incident").scrollIntoViewIfNeeded();
+    await page.evaluate(() => window.scrollBy(0, 200));
+    await expect(html).toHaveAttribute("data-tint", "peach");
+    await page.locator("#projects").scrollIntoViewIfNeeded();
+    await page.evaluate(() => window.scrollBy(0, 200));
+    await expect(html).toHaveAttribute("data-tint", "violet");
+  });
+
   test("an explicit theme choice persists and overrides the OS", async ({ page }) => {
     const html = page.locator("html");
     await page.emulateMedia({ colorScheme: "light" });

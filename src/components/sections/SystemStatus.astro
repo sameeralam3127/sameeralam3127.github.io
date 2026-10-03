@@ -24,7 +24,12 @@ const lighthouse = [
 ] as const;
 ---
 
-<section aria-labelledby="status" class="mx-auto max-w-6xl px-4 pt-24 sm:px-6" data-reveal>
+<section
+  aria-labelledby="status"
+  data-tint="sky"
+  class="mx-auto max-w-6xl px-4 pt-24 sm:px-6"
+  data-reveal
+>
   <SectionHeading
     id="status"
     command="kubectl get --raw /healthz?verbose"

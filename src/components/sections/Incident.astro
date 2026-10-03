@@ -3,7 +3,12 @@ import IncidentSimulator from "@/components/islands/IncidentSimulator";
 import SectionHeading from "@/components/ui/SectionHeading.astro";
 ---
 
-<section aria-labelledby="incident" class="mx-auto max-w-6xl px-4 pt-24 sm:px-6" data-reveal>
+<section
+  aria-labelledby="incident"
+  data-tint="peach"
+  class="mx-auto max-w-6xl px-4 pt-24 sm:px-6"
+  data-reveal
+>
   <SectionHeading
     id="incident"
     command="pagerduty incident ack --on-call=you"
