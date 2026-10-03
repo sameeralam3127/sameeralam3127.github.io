@@ -2,6 +2,7 @@ import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent } f
 import { profile } from "@/data/profile";
 import { complete, run, type Effect, type Line, type Tone } from "@/lib/terminal/commands";
 import { setTheme, toggleTheme } from "@/lib/theme";
+import { useHydrated } from "@/lib/use-hydrated";
 
 interface Entry {
   id: number;
@@ -92,6 +93,7 @@ export default function Terminal({ deepDives }: Props) {
   const scroller = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const hydrated = useRef(false);
+  const ready = useHydrated();
 
   // Keep the newest output in view (skip the initial render so the page doesn't jump).
   useEffect(() => {
@@ -244,6 +246,7 @@ export default function Terminal({ deepDives }: Props) {
             autoCorrect="off"
             spellCheck={false}
             enterKeyHint="send"
+            disabled={!ready}
             aria-describedby={`${inputId}-hint`}
           />
         </div>
@@ -259,6 +262,7 @@ export default function Terminal({ deepDives }: Props) {
             <li key={chip}>
               <button
                 type="button"
+                disabled={!ready}
                 onClick={() => execute(chip)}
                 className="rounded border border-line bg-panel-2 px-2 py-1 font-mono text-xs text-muted transition-colors hover:border-accent hover:text-accent"
               >
