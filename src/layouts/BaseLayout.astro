@@ -15,12 +15,15 @@ interface Props {
   description?: string;
   /** Hide the header/footer chrome (used by the 404 page). */
   bare?: boolean;
+  /** Keep the page out of search indexes (no canonical URL either). */
+  noindex?: boolean;
 }
 
 const {
   title = `${profile.name} — ${profile.title}`,
   description = profile.site.description,
   bare = false,
+  noindex = false,
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site ?? profile.site.url).href;
@@ -35,7 +38,7 @@ const paletteItems = buildPaletteItems(await getDeepDiveSlugs());
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="author" content={profile.name} />
-    <link rel="canonical" href={canonical} />
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <meta name="theme-color" content="#111217" media="(prefers-color-scheme: dark)" />
     <meta name="theme-color" content="#f4f6f8" media="(prefers-color-scheme: light)" />

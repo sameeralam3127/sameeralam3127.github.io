@@ -48,7 +48,7 @@ const start = async (): Promise<void> => {
   log(SCOPE, `build started at ${info.startedAt} (${info.sha?.slice(0, 7) ?? "no sha"})`);
 };
 
-/** Reads the median-ish (best) scores from an LHCI `.lighthouseci` directory. */
+/** Reads median scores from an LHCI `.lighthouseci` directory, preferring home page runs. */
 const readLighthouse = async (dir: string): Promise<LighthouseScores | null> => {
   const files = (await readdir(dir)).filter((f) => f.startsWith("lhr-") && f.endsWith(".json"));
   if (files.length === 0) return null;
@@ -56,10 +56,12 @@ const readLighthouse = async (dir: string): Promise<LighthouseScores | null> => 
   const runs = await Promise.all(
     files.map(async (f) => {
       const lhr = JSON.parse(await readFile(join(dir, f), "utf8")) as {
+        requestedUrl?: string;
         categories: Record<string, { score: number | null }>;
       };
       const score = (key: string) => Math.round((lhr.categories[key]?.score ?? 0) * 100);
       return {
+        home: lhr.requestedUrl ? new URL(lhr.requestedUrl).pathname === "/" : false,
         performance: score("performance"),
         accessibility: score("accessibility"),
         bestPractices: score("best-practices"),
@@ -67,6 +69,9 @@ const readLighthouse = async (dir: string): Promise<LighthouseScores | null> => 
       };
     }),
   );
+
+  const homeRuns = runs.filter((r) => r.home);
+  if (homeRuns.length > 0) runs.splice(0, runs.length, ...homeRuns);
 
   // Report the median run per category, like LHCI's assertions do.
   const median = (values: number[]) =>

@@ -129,10 +129,7 @@ const lighthouse = [
             </div>
             <div
               class="mt-2 h-1.5 overflow-hidden rounded-full bg-panel-2"
-              role="meter"
-              aria-label={`Lighthouse ${label} score`}
-              aria-valuemin={0}
-              aria-valuemax={100}
+              data-label={`Lighthouse ${label} score`}
               data-score-meter
             >
               <div
@@ -171,6 +168,11 @@ const lighthouse = [
       const meter = item.querySelector<HTMLElement>("[data-score-meter]");
       const bar = item.querySelector<HTMLElement>("[data-score-bar]");
       if (value) value.textContent = String(score);
+      // The meter role is only meaningful once there is a value to report.
+      meter?.setAttribute("role", "meter");
+      meter?.setAttribute("aria-label", meter.dataset.label ?? "Lighthouse score");
+      meter?.setAttribute("aria-valuemin", "0");
+      meter?.setAttribute("aria-valuemax", "100");
       meter?.setAttribute("aria-valuenow", String(score));
       if (bar) {
         bar.classList.remove("bg-muted");

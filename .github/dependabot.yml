@@ -1,0 +1,35 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 10
+    groups:
+      astro:
+        patterns: ["astro", "@astrojs/*"]
+      react:
+        patterns: ["react", "react-dom", "@types/react", "@types/react-dom"]
+      lint-and-test:
+        patterns:
+          [
+            "eslint*",
+            "@eslint/*",
+            "typescript-eslint",
+            "globals",
+            "prettier*",
+            "vitest",
+            "@playwright/test",
+          ]
+      styles:
+        patterns: ["tailwindcss", "@tailwindcss/*", "@fontsource-variable/*"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      actions:
+        patterns: ["*"]

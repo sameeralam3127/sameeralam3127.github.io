@@ -49,13 +49,17 @@ const hasBody = entry.body?.trim().length;
     <nav aria-label="Breadcrumb" class="font-mono text-xs text-muted">
       <ol class="flex flex-wrap items-center">
         <li class="flex">
-          <a href="/" class="hover:text-accent">
-            ~
+          <a
+            href="/"
+            class="inline-flex min-h-6 min-w-6 items-center justify-center hover:text-accent"
+          >
+            <span aria-hidden="true">~</span>
+            <span class="sr-only">home</span>
           </a>
           <span aria-hidden="true">/</span>
         </li>
         <li class="flex">
-          <a href="/#projects" class="hover:text-accent">
+          <a href="/#projects" class="inline-flex min-h-6 items-center hover:text-accent">
             projects
           </a>
           <span aria-hidden="true">/</span>

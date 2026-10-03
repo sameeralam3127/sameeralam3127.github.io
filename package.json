@@ -14,9 +14,14 @@
     "build": "astro build",
     "postbuild": "node scripts/build-meta.ts finish",
     "preview": "astro preview",
-    "typecheck": "astro check",
+    "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "typecheck": "astro check",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "audit": "node scripts/audit.ts",
+    "check": "npm run lint && npm run format:check && npm run typecheck && npm test"
   },
   "dependencies": {
     "@astrojs/react": "^7.0.0",
@@ -31,10 +36,20 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^22.20.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "eslint": "^10.12.0",
+    "eslint-plugin-astro": "^3.2.1",
+    "eslint-plugin-jsx-a11y-x": "^0.2.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.13.0",
     "prettier": "^3.9.9",
     "prettier-plugin-astro": "^1.1.0",
-    "typescript": "~6.0.3"
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.71.0",
+    "vitest": "^5.0.3"
   }
 }
