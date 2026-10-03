@@ -44,6 +44,7 @@ const months = weeks.flatMap((w, i) => {
 
 const fmt = (n: number) => n.toLocaleString("en");
 const describe = (w: ActivityWeek) => `${fmt(w.count)} ${unit}, week of ${formatDate(w.start)}`;
+const latest = weeks[weeks.length - 1];
 ---
 
 <figure class="activity-chart">
@@ -72,8 +73,12 @@ const describe = (w: ActivityWeek) => `${fmt(w.count)} ${unit}, week of ${format
       <div
         class="relative flex h-36 items-end gap-[2px] rounded-sm outline-offset-4"
         tabindex="0"
-        role="group"
-        aria-label={`Weekly ${unit} over ${weeks.length} weeks. Use left and right arrow keys to read each week.`}
+        role="slider"
+        aria-label={`Weekly ${unit}, ${weeks.length} weeks. Arrow keys move between weeks.`}
+        aria-valuemin={0}
+        aria-valuemax={weeks.length - 1}
+        aria-valuenow={weeks.length - 1}
+        aria-valuetext={latest ? describe(latest) : ""}
         data-activity-bars
       >
         {weeks.map((w, i) => (
@@ -109,7 +114,7 @@ const describe = (w: ActivityWeek) => `${fmt(w.count)} ${unit}, week of ${format
       <div
         class="pointer-events-none absolute z-10 hidden rounded border border-line-strong bg-panel-2 px-2.5 py-1.5 text-xs whitespace-nowrap shadow-lg"
         data-tooltip
-        role="status"
+        aria-hidden="true"
       ></div>
     </div>
   </div>
@@ -168,6 +173,8 @@ const describe = (w: ActivityWeek) => `${fmt(w.count)} ${unit}, week of ${format
       bars.forEach((b) => b.classList.toggle("is-active", b === bar));
       active = index;
       tooltip.textContent = bar.dataset.label ?? "";
+      group.setAttribute("aria-valuenow", String(index));
+      group.setAttribute("aria-valuetext", bar.dataset.label ?? "");
       tooltip.classList.remove("hidden");
       const groupBox = group.getBoundingClientRect();
       const barBox = bar.getBoundingClientRect();

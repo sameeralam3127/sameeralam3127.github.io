@@ -17,8 +17,10 @@ interface Props {
 
 declare global {
   interface Window {
-    /** Set by the header button if it is clicked before this island hydrates. */
+    /** Set by the header if the palette is requested before this island hydrates. */
     __paletteRequested?: boolean;
+    /** Set once this island is hydrated and listening for the shortcut itself. */
+    __paletteReady?: boolean;
   }
 }
 
@@ -35,6 +37,17 @@ export default function CommandPalette({ items, email }: Props) {
   const [notice, setNotice] = useState("");
 
   const results = useMemo(() => filterItems(items, query), [items, query]);
+
+  /** Results grouped in order of first appearance, keeping each item's flat index. */
+  const groups = useMemo(() => {
+    const byGroup = new Map<string, { item: PaletteItem; index: number }[]>();
+    results.forEach((item, index) => {
+      const list = byGroup.get(item.group) ?? [];
+      list.push({ item, index });
+      byGroup.set(item.group, list);
+    });
+    return [...byGroup];
+  }, [results]);
 
   const open = useCallback(() => {
     const el = dialog.current;
@@ -58,11 +71,13 @@ export default function CommandPalette({ items, email }: Props) {
     };
     document.addEventListener("keydown", onKey);
     document.addEventListener(PALETTE_OPEN_EVENT, open);
+    window.__paletteReady = true;
     if (window.__paletteRequested) {
       window.__paletteRequested = false;
       open();
     }
     return () => {
+      window.__paletteReady = false;
       document.removeEventListener("keydown", onKey);
       document.removeEventListener(PALETTE_OPEN_EVENT, open);
     };
@@ -114,9 +129,10 @@ export default function CommandPalette({ items, email }: Props) {
     }
   };
 
-  let lastGroup: string | null = null;
-
   return (
+    // Clicking the backdrop closes the palette (a mouse convenience; Escape is
+    // the keyboard equivalent and is handled natively by <dialog>).
+    // eslint-disable-next-line jsx-a11y-x/click-events-have-key-events, jsx-a11y-x/no-noninteractive-element-interactions
     <dialog
       ref={dialog}
       aria-label="Command palette"
@@ -154,35 +170,36 @@ export default function CommandPalette({ items, email }: Props) {
         </kbd>
       </div>
 
-      <ul
+      <div
         id={listId}
         role="listbox"
         aria-label="Commands"
         className="max-h-[50vh] overflow-y-auto p-2"
       >
         {results.length === 0 && (
-          <li className="px-3 py-6 text-center text-sm text-muted">No matches for “{query}”</li>
+          <p className="px-3 py-6 text-center text-sm text-muted">No matches for “{query}”</p>
         )}
-        {results.map((item, i) => {
-          const header = item.group !== lastGroup ? item.group : null;
-          lastGroup = item.group;
-          return (
-            <li key={item.id} role="presentation">
-              {header && (
-                <p
-                  className="px-3 pt-2 pb-1 font-mono text-[10px] tracking-widest text-muted uppercase"
-                  aria-hidden="true"
-                >
-                  {header}
-                </p>
-              )}
+        {groups.map(([group, entries]) => (
+          <div key={group} role="group" aria-labelledby={`${listId}-${group}`}>
+            <p
+              id={`${listId}-${group}`}
+              className="px-3 pt-2 pb-1 font-mono text-[10px] tracking-widest text-muted uppercase"
+            >
+              {group}
+            </p>
+            {entries.map(({ item, index }) => (
+              // Options are driven from the input via aria-activedescendant; the
+              // click handler is the pointer equivalent of Enter.
+              // eslint-disable-next-line jsx-a11y-x/click-events-have-key-events
               <div
-                id={`${listId}-${i}`}
+                key={item.id}
+                id={`${listId}-${index}`}
                 role="option"
-                aria-selected={i === active}
-                onPointerMove={() => setActive(i)}
+                tabIndex={-1}
+                aria-selected={index === active}
+                onPointerMove={() => setActive(index)}
                 onClick={() => void activate(item)}
-                className={`flex cursor-pointer items-baseline gap-3 rounded px-3 py-2 text-sm ${i === active ? "bg-panel-2 text-accent" : "text-text"}`}
+                className={`flex cursor-pointer items-baseline gap-3 rounded px-3 py-2 text-sm ${index === active ? "bg-panel-2 text-accent" : "text-text"}`}
               >
                 <span className="truncate">{item.label}</span>
                 {item.hint && (
@@ -191,10 +208,10 @@ export default function CommandPalette({ items, email }: Props) {
                   </span>
                 )}
               </div>
-            </li>
-          );
-        })}
-      </ul>
+            ))}
+          </div>
+        ))}
+      </div>
 
       <div className="flex items-center gap-4 border-t border-line px-4 py-2 font-mono text-[11px] text-muted">
         <span>↑↓ navigate</span>

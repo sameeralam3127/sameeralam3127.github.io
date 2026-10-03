@@ -3,3 +3,8 @@ dist
 node_modules
 package-lock.json
 public/resume-export.html
+playwright-report
+test-results
+.lighthouseci
+lighthouse-report
+src/data/generated

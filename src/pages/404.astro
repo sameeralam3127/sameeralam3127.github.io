@@ -6,7 +6,7 @@ import { navigation } from "@/data/navigation";
 import { profile } from "@/data/profile";
 ---
 
-<BaseLayout title={`404 — ${profile.name}`} description="Page not found." bare>
+<BaseLayout title={`404 — ${profile.name}`} description="Page not found." bare noindex>
   <div class="mx-auto flex min-h-dvh max-w-2xl flex-col justify-center px-4 py-16 sm:px-6">
     <Panel title="~ — zsh" bodyClass="p-0">
       <span slot="meta" class="inline-flex items-center gap-1.5 text-crit">

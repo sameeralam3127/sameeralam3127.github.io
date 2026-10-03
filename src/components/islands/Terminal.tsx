@@ -197,6 +197,9 @@ export default function Terminal({ deepDives }: Props) {
         <span className="ml-auto hidden sm:inline">interactive</span>
       </div>
 
+      {/* Clicking the output focuses the prompt (a mouse convenience); keyboard
+          users reach the input directly with Tab. */}
+      {/* eslint-disable-next-line jsx-a11y-x/click-events-have-key-events, jsx-a11y-x/no-static-element-interactions */}
       <div
         ref={scroller}
         className="h-72 overflow-y-auto p-4 font-mono text-[13px] leading-[1.6] sm:h-80 sm:p-5"

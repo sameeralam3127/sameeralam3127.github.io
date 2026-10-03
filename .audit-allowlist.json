@@ -1,0 +1,11 @@
+{
+  "$comment": "High/critical npm advisories accepted after review. Each entry needs a reason and an expiry; expired entries fail the audit so they get re-reviewed.",
+  "advisories": [
+    {
+      "id": "GHSA-ch52-4w7c-c8xp",
+      "package": "http-cache-semantics",
+      "reason": "Transitive via astro; affects shared HTTP caches handling max-stale. This site is static files on GitHub Pages and never runs Astro's server or caches responses. No patched version exists (<=4.2.0 is latest).",
+      "expires": "2026-12-31"
+    }
+  ]
+}

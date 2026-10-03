@@ -1,0 +1,32 @@
+# Link checker config (https://lychee.cli.rs). Runs against the built dist/.
+
+# Root-relative links ("/projects/…") are resolved against dist/ via
+# --root-dir on the command line (it must be an absolute path).
+index_files = ["index.html"]
+
+max_retries = 3
+retry_wait_time = 4
+timeout = 20
+max_concurrency = 8
+
+# Treat rate limiting as "alive": the link exists, the host is just busy.
+accept = ["200..=299", "429"]
+
+exclude = [
+  # LinkedIn blocks automated clients (HTTP 999) regardless of the URL.
+  '^https://(www\.)?linkedin\.com/',
+  # The Space requires a signed-in session for automated clients; it is
+  # verified manually instead of failing every build.
+  '^https://huggingface\.co/spaces/',
+  # Example hosts used inside incident scenarios and code samples.
+  '^https?://([a-z0-9-]+\.)?example\.com',
+  '^http://127\.0\.0\.1',
+  # The site itself: internal links are already checked against dist/, and
+  # the live domain still serves the previous build while a PR is open.
+  '^https://sameeralam3127\.github\.io/?$',
+  '^https://sameeralam3127\.github\.io/(projects|404)',
+]
+
+# resume-export.html is the legacy printable resume, kept as-is at its old URL.
+exclude_path = ["dist/_astro", "dist/resume-export.html"]
+include_mail = false

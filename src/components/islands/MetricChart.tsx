@@ -77,8 +77,12 @@ export default function MetricChart({ title, unit, series, range, threshold }: P
         className="relative outline-offset-2"
         style={{ height: HEIGHT }}
         tabIndex={0}
-        role="img"
-        aria-roledescription="line chart"
+        role="slider"
+        aria-label={`${title}, ${range[0]} to ${range[1]}`}
+        aria-valuemin={0}
+        aria-valuemax={n - 1}
+        aria-valuenow={active ?? n - 1}
+        aria-valuetext={`${fmt(series[active ?? n - 1] ?? 0)}${unit} at ${timeAt(active ?? n - 1)}`}
         aria-describedby={`${id}-summary`}
         onPointerMove={onPointer}
         onPointerLeave={() => setActive(null)}
@@ -160,7 +164,7 @@ export default function MetricChart({ title, unit, series, range, threshold }: P
                 left: `${x(point.i)}%`,
                 transform: `translate(${point.i > n / 2 ? "-100%" : "0"}, -100%)`,
               }}
-              role="status"
+              aria-hidden="true"
             >
               <strong className="text-text">
                 {fmt(point.v)}

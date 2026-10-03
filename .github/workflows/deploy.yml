@@ -1,0 +1,104 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # Nightly rebuild keeps GitHub stats and the latest articles fresh.
+    - cron: "17 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time; a newer run supersedes a stale one.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      # prebuild records commit/branch/run link and start time; postbuild
+      # writes dist/build-meta.json with the finish time and duration.
+      - name: Build and inject build metadata
+        run: npm run build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Scores are recorded for the status panel, not asserted: the hard
+      # budgets gate pull requests in ci.yml, and a noisy runner shouldn't
+      # block a nightly data refresh.
+      - name: Record Lighthouse scores
+        run: |
+          npx --yes @lhci/cli@0.15.1 collect --config=lighthouserc.json
+          node scripts/build-meta.ts lighthouse .lighthouseci
+        continue-on-error: true
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: dist
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+
+  verify:
+    name: Post-deploy check
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions: {}
+    steps:
+      - name: Live site returns 200 and serves this commit
+        env:
+          PAGE_URL: ${{ needs.deploy.outputs.page_url }}
+          EXPECTED_SHA: ${{ github.sha }}
+        run: |
+          url="${PAGE_URL%/}"
+          for attempt in $(seq 1 12); do
+            status=$(curl -s -o /dev/null -w '%{http_code}' "$url/")
+            if [ "$status" = "200" ]; then
+              echo "✓ $url/ returned 200"
+              break
+            fi
+            echo "attempt $attempt: $url/ returned $status, retrying in 10s"
+            sleep 10
+          done
+          if [ "$status" != "200" ]; then
+            echo "::error::$url/ returned $status after 12 attempts"
+            exit 1
+          fi
+
+          # The CDN can briefly serve the previous build; report, don't fail.
+          for attempt in $(seq 1 12); do
+            served=$(curl -s "$url/build-meta.json?t=$(date +%s)" | grep -o '"sha": *"[0-9a-f]*"' | grep -o '[0-9a-f]\{40\}' || true)
+            if [ "$served" = "$EXPECTED_SHA" ]; then
+              echo "✓ build-meta.json reports $EXPECTED_SHA"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::warning::Live build-meta.json reports '${served:-nothing}', expected $EXPECTED_SHA (CDN cache may still be warming)"
