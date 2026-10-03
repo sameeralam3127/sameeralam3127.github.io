@@ -50,6 +50,45 @@ test.describe("pages", () => {
   });
 });
 
+test.describe("seo and assets", () => {
+  test("home page has social cards and Person structured data", async ({ page, request }) => {
+    await page.goto("/");
+    const ogImage = await page.locator('meta[property="og:image"]').getAttribute("content");
+    expect(ogImage).toMatch(/\/og\/index\.png$/);
+    const image = await request.get(new URL(ogImage ?? "", "http://x").pathname);
+    expect(image.status()).toBe(200);
+    expect(image.headers()["content-type"]).toContain("image/png");
+
+    const ld = await page.locator('script[type="application/ld+json"]').textContent();
+    const types = (JSON.parse(ld ?? "[]") as { "@type": string }[]).map((d) => d["@type"]);
+    expect(types).toContain("Person");
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
+      "content",
+      "summary_large_image",
+    );
+  });
+
+  test("crawl files and downloads are served", async ({ request }) => {
+    for (const path of [
+      "/robots.txt",
+      "/sitemap.xml",
+      "/sitemap-index.xml",
+      "/apple-touch-icon.png",
+      "/Resume.docx",
+      "/Sameer-Alam-Resume.pdf",
+    ]) {
+      expect((await request.get(path)).status(), path).toBe(200);
+    }
+    expect(await (await request.get("/robots.txt")).text()).toContain("Sitemap:");
+  });
+
+  test("the 404 page is not indexable", async ({ page }) => {
+    await page.goto("/missing");
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "noindex");
+    await expect(page.locator('link[rel="canonical"]')).toHaveCount(0);
+  });
+});
+
 test.describe("terminal", () => {
   test("runs typed commands with tab completion and history", async ({ page }) => {
     const errors = trackErrors(page);

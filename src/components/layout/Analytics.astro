@@ -1,0 +1,33 @@
+---
+/**
+ * Optional cookieless analytics, configured in src/data/site-config.ts.
+ * Renders nothing unless a provider is set. The loader respects Do Not Track
+ * and Global Privacy Control before injecting any third-party script.
+ */
+import { analytics } from "@/data/site-config";
+
+const config =
+  analytics.provider === "goatcounter"
+    ? {
+        src: "https://gc.zgo.at/count.js",
+        attrs: { "data-goatcounter": `https://${analytics.code}.goatcounter.com/count` },
+      }
+    : analytics.provider === "plausible"
+      ? {
+          src: analytics.scriptSrc ?? "https://plausible.io/js/script.js",
+          attrs: { "data-domain": analytics.domain },
+        }
+      : null;
+---
+
+{config && <script is:inline define:vars={{ config }}>
+  (() => {
+    const nav = navigator;
+    if (nav.doNotTrack === "1" || nav.globalPrivacyControl === true) return;
+    const s = document.createElement("script");
+    s.src = config.src;
+    s.async = true;
+    for (const [k, v] of Object.entries(config.attrs)) s.setAttribute(k, v);
+    document.head.appendChild(s);
+  })();
+</script>}

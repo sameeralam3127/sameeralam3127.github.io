@@ -71,6 +71,7 @@ npm run build         # fetch data, build to dist/, write dist/build-meta.json
 npm run check         # lint + format check + type check + unit tests
 npm run test:e2e      # Playwright smoke tests against dist/ (run `npm run build` first)
 npm run audit         # npm audit gate (high/critical, with reviewed exceptions)
+npm run resume:pdf    # regenerate public/Sameer-Alam-Resume.pdf from resume-export.html
 ```
 
 `npm run data` fetches GitHub stats and the latest articles into `src/data/generated/` (gitignored).
@@ -80,17 +81,33 @@ is unavailable, the site falls back to curated content and still builds.
 
 ## Editing content
 
-| What                                                             | Where                            |
-| ---------------------------------------------------------------- | -------------------------------- |
-| Name, title, summary, skills, projects, experience, certs, links | `src/data/profile.ts`            |
-| Project deep dives (problem → approach → architecture → outcome) | `src/content/projects/<slug>.md` |
-| Incident simulator scenarios (branching JSON)                    | `src/data/incidents.json`        |
-| Site pipeline diagram                                            | `src/data/architecture.ts`       |
-| Navigation and command palette sections                          | `src/data/navigation.ts`         |
-| Resume                                                           | `public/Resume.docx`             |
+| What                                                             | Where                                             |
+| ---------------------------------------------------------------- | ------------------------------------------------- |
+| Name, title, summary, skills, projects, experience, certs, links | `src/data/profile.ts`                             |
+| Project deep dives (problem → approach → architecture → outcome) | `src/content/projects/<slug>.md`                  |
+| Incident simulator scenarios (branching JSON)                    | `src/data/incidents.json`                         |
+| Site pipeline diagram                                            | `src/data/architecture.ts`                        |
+| Navigation and command palette sections                          | `src/data/navigation.ts`                          |
+| Resume (Word, and the printable HTML the PDF is rendered from)   | `public/Resume.docx`, `public/resume-export.html` |
+| Analytics (off by default)                                       | `src/data/site-config.ts`                         |
 
 A deep-dive file's name must match a project `slug` in `profile.ts`. Unit tests check content
 invariants: unique slugs, valid scenario graphs, and links that resolve.
+
+## SEO and social sharing
+
+- Every page has a description, canonical URL, Open Graph and Twitter `summary_large_image` tags.
+- Social images are generated at build time (`src/pages/og/[slug].png.ts`, satori + resvg): one for
+  the home page and one per deep dive. They update automatically when `profile.ts` changes.
+- JSON-LD: `Person` and `WebSite` on the home page, `SoftwareSourceCode` and `BreadcrumbList` on
+  project pages.
+- `robots.txt`, `sitemap-index.xml` (with `/sitemap.xml` as an alias) and a `noindex` 404 page.
+
+## Analytics
+
+Off by default. To turn on a cookieless provider (GoatCounter or Plausible), set it in
+`src/data/site-config.ts`. Visitors with Do Not Track or Global Privacy Control enabled are never
+counted, and no consent banner is needed because nothing personal is stored.
 
 ## CI/CD
 

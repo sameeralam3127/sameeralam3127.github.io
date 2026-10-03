@@ -41,8 +41,19 @@ export const buildPaletteItems = (deepDives: string[]): PaletteItem[] => [
     label: "Download resume (.docx)",
     group: "Actions",
     href: profile.resume.docx,
-    keywords: "cv",
+    keywords: "cv word",
   },
+  ...(profile.resume.pdf
+    ? [
+        {
+          id: "action-resume-pdf",
+          label: "Download resume (.pdf)",
+          group: "Actions",
+          href: profile.resume.pdf,
+          keywords: "cv",
+        } satisfies PaletteItem,
+      ]
+    : []),
   ...profile.contact.social.map((s): PaletteItem => ({
     id: `link-${s.label}`,
     label: s.label,

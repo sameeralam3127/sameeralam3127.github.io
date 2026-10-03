@@ -585,6 +585,7 @@ export const profile: Profile = {
   },
   resume: {
     docx: "/Resume.docx",
+    pdf: "/Sameer-Alam-Resume.pdf",
   },
   contact: {
     email: "sameeralam3127@gmail.com",
