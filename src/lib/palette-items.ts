@@ -29,6 +29,13 @@ export const buildPaletteItems = (deepDives: string[]): PaletteItem[] => [
     keywords: "dark light mode colour color",
   },
   {
+    id: "action-system-theme",
+    label: "Match my system theme",
+    group: "Actions",
+    action: "system-theme",
+    keywords: "auto os dark light mode colour color",
+  },
+  {
     id: "action-email",
     label: "Copy email address",
     group: "Actions",

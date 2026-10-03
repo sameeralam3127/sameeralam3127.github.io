@@ -67,6 +67,7 @@ describe("terminal commands", () => {
     expect(run("clear", ctx).effect).toEqual({ type: "clear" });
     expect(run("theme light", ctx).effect).toEqual({ type: "theme", theme: "light" });
     expect(run("theme", ctx).effect).toEqual({ type: "theme", theme: "toggle" });
+    expect(run("theme system", ctx).effect).toEqual({ type: "theme", theme: "system" });
     expect(run("open kuberescue", ctx).effect).toEqual({
       type: "navigate",
       href: "/projects/kuberescue/",

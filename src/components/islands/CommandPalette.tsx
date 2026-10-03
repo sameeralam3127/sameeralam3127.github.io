@@ -8,7 +8,7 @@ import {
   type KeyboardEvent,
 } from "react";
 import { filterItems, PALETTE_OPEN_EVENT, type PaletteItem } from "@/lib/palette";
-import { toggleTheme } from "@/lib/theme";
+import { setTheme, toggleTheme } from "@/lib/theme";
 
 interface Props {
   items: PaletteItem[];
@@ -90,8 +90,9 @@ export default function CommandPalette({ items, email }: Props) {
 
   const activate = async (item: PaletteItem | undefined) => {
     if (!item) return;
-    if (item.action === "toggle-theme") {
-      toggleTheme();
+    if (item.action === "toggle-theme" || item.action === "system-theme") {
+      if (item.action === "toggle-theme") toggleTheme();
+      else setTheme("system");
       close();
       return;
     }

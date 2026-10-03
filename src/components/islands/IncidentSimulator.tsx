@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import incidents from "@/data/incidents.json";
 import { choose, currentNode, startRun, tally, type RunState } from "@/lib/incident/engine";
 import type { Evidence, OutcomeResult, Scenario, Verdict } from "@/lib/incident/types";
+import { useHydrated } from "@/lib/use-hydrated";
 import MetricChart from "./MetricChart";
 
 const scenarios = incidents as Scenario[];
@@ -70,6 +71,7 @@ export default function IncidentSimulator() {
   const heading = useRef<HTMLHeadingElement>(null);
   const root = useRef<HTMLDivElement>(null);
   const moved = useRef(false);
+  const ready = useHydrated();
 
   // Move focus to the new step so keyboard and screen-reader users follow along.
   useEffect(() => {
@@ -112,8 +114,9 @@ export default function IncidentSimulator() {
             </p>
             <button
               type="button"
+              disabled={!ready}
               onClick={() => begin(s)}
-              className="mt-4 self-start rounded bg-accent px-3.5 py-2 font-mono text-sm font-medium text-accent-ink hover:opacity-90"
+              className="mt-4 self-start rounded-full bg-btn px-4 py-2 font-mono text-sm font-medium text-btn-ink hover:opacity-85"
             >
               acknowledge page →
             </button>
@@ -145,6 +148,7 @@ export default function IncidentSimulator() {
         </span>
         <button
           type="button"
+          disabled={!ready}
           onClick={reset}
           className="ml-auto text-muted underline-offset-2 hover:text-text hover:underline"
         >
@@ -229,15 +233,17 @@ export default function IncidentSimulator() {
             <div className="mt-6 flex flex-wrap gap-3">
               <button
                 type="button"
+                disabled={!ready}
                 onClick={() => begin(scenario)}
-                className="rounded bg-accent px-3.5 py-2 font-mono text-sm font-medium text-accent-ink hover:opacity-90"
+                className="rounded-full bg-btn px-4 py-2 font-mono text-sm font-medium text-btn-ink hover:opacity-85"
               >
                 replay
               </button>
               <button
                 type="button"
+                disabled={!ready}
                 onClick={reset}
-                className="rounded border border-line-strong px-3.5 py-2 font-mono text-sm text-text hover:border-accent hover:text-accent"
+                className="rounded-full border-2 border-text px-4 py-1.5 font-mono text-sm text-text transition-colors hover:bg-panel-2"
               >
                 another scenario
               </button>
@@ -269,6 +275,7 @@ export default function IncidentSimulator() {
                   <button
                     key={c.id}
                     type="button"
+                    disabled={!ready}
                     onClick={() => {
                       moved.current = true;
                       setRun(choose(scenario, run, c.id));
