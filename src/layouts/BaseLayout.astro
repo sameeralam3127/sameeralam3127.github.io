@@ -5,6 +5,7 @@ import "@/styles/global.css";
 
 import SiteHeader from "@/components/layout/SiteHeader.astro";
 import SiteFooter from "@/components/layout/SiteFooter.astro";
+import Analytics from "@/components/layout/Analytics.astro";
 import CommandPalette from "@/components/islands/CommandPalette";
 import { profile } from "@/data/profile";
 import { getDeepDiveSlugs } from "@/lib/deep-dives";
@@ -17,6 +18,12 @@ interface Props {
   bare?: boolean;
   /** Keep the page out of search indexes (no canonical URL either). */
   noindex?: boolean;
+  /** Open Graph image path, e.g. "/og/index.png". */
+  image?: string;
+  imageAlt?: string;
+  ogType?: "website" | "article" | "profile";
+  /** Structured data for this page (one schema.org object or several). */
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 const {
@@ -24,9 +31,17 @@ const {
   description = profile.site.description,
   bare = false,
   noindex = false,
+  image = "/og/index.png",
+  imageAlt = `${profile.name}, ${profile.title}`,
+  ogType = "website",
+  jsonLd,
 } = Astro.props;
 
-const canonical = new URL(Astro.url.pathname, Astro.site ?? profile.site.url).href;
+const site = Astro.site ?? new URL(profile.site.url);
+const canonical = new URL(Astro.url.pathname, site).href;
+const imageUrl = new URL(image, site).href;
+// "</" can't appear inside the JSON-LD script; escape it defensively.
+const structuredData = jsonLd ? JSON.stringify(jsonLd).replace(/</g, "\\u003c") : null;
 const paletteItems = buildPaletteItems(await getDeepDiveSlugs());
 ---
 
@@ -40,6 +55,26 @@ const paletteItems = buildPaletteItems(await getDeepDiveSlugs());
     <meta name="author" content={profile.name} />
     {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <meta property="og:site_name" content={profile.name} />
+    <meta property="og:locale" content="en_IN" />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {!noindex && <meta property="og:url" content={canonical} />}
+    <meta property="og:image" content={imageUrl} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={imageAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={imageUrl} />
+    <meta name="twitter:image:alt" content={imageAlt} />
+    {structuredData && <script type="application/ld+json" set:html={structuredData} />}
     <meta name="theme-color" content="#111217" media="(prefers-color-scheme: dark)" />
     <meta name="theme-color" content="#f4f6f8" media="(prefers-color-scheme: light)" />
     <meta name="generator" content={Astro.generator} />
@@ -76,6 +111,7 @@ const paletteItems = buildPaletteItems(await getDeepDiveSlugs());
     </main>
     {!bare && <SiteFooter />}
     <CommandPalette client:idle items={paletteItems} email={profile.contact.email} />
+    <Analytics />
 
     <script>
       // Reveal sections as they scroll into view. Skipped entirely when the

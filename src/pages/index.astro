@@ -12,9 +12,10 @@ import Projects from "@/components/sections/Projects.astro";
 import Stack from "@/components/sections/Stack.astro";
 import SystemStatus from "@/components/sections/SystemStatus.astro";
 import Writing from "@/components/sections/Writing.astro";
+import { personSchema, websiteSchema } from "@/lib/structured-data";
 ---
 
-<BaseLayout>
+<BaseLayout ogType="profile" jsonLd={[personSchema(), websiteSchema()]}>
   <Hero />
   <Principles />
   <Stack />

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://sameeralam3127.github.io/sitemap-index.xml
