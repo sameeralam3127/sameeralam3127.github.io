@@ -31,7 +31,12 @@ const activityLabel =
     : "public events in the last 90 days";
 ---
 
-<section aria-labelledby="github" class="mx-auto max-w-6xl px-4 pt-24 sm:px-6" data-reveal>
+<section
+  aria-labelledby="github"
+  data-tint="sky"
+  class="mx-auto max-w-6xl px-4 pt-24 sm:px-6"
+  data-reveal
+>
   <SectionHeading
     id="github"
     command={`gh api users/${profile.handle}`}

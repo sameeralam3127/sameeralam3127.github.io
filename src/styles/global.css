@@ -16,22 +16,20 @@
   --c-line: #e3e5e8;
   --c-line-strong: #c4c9d0;
   --c-text: #161d26;
-  --c-muted: #535b66;
-  --c-accent: #5b3ae0;
+  --c-muted: #474e58;
+  --c-accent: #4a2bc4;
   --c-accent-ink: #ffffff;
   --c-btn: #161d26;
   --c-btn-ink: #ffffff;
-  --c-ok: #1d7a32;
-  --c-warn: #8a5a00;
-  --c-crit: #c4271b;
-  --c-info: #0a6bbf;
+  --c-ok: #105424;
+  --c-warn: #6e4700;
+  --c-crit: #9e1d14;
+  --c-info: #064b7e;
   --c-grid: transparent;
   --c-scan: transparent;
   --c-glow: rgb(29 122 50 / 0.35);
   --c-shadow: 0 1px 2px rgb(22 29 38 / 0.05), 0 4px 16px rgb(22 29 38 / 0.04);
-  --c-glow-1: rgb(200 240 110 / 0.55);
-  --c-glow-2: rgb(150 230 200 / 0.45);
-  --c-glow-3: rgb(195 175 255 / 0.45);
+  --amb-a: 0.72;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -56,9 +54,7 @@
     --c-scan: rgb(255 255 255 / 0.01);
     --c-glow: rgb(115 191 105 / 0.55);
     --c-shadow: none;
-    --c-glow-1: rgb(110 159 255 / 0.14);
-    --c-glow-2: rgb(115 191 105 / 0.1);
-    --c-glow-3: rgb(150 110 255 / 0.14);
+    --amb-a: 0.13;
   }
 }
 
@@ -83,9 +79,7 @@
   --c-scan: rgb(255 255 255 / 0.01);
   --c-glow: rgb(115 191 105 / 0.55);
   --c-shadow: none;
-  --c-glow-1: rgb(110 159 255 / 0.14);
-  --c-glow-2: rgb(115 191 105 / 0.1);
-  --c-glow-3: rgb(150 110 255 / 0.14);
+  --amb-a: 0.13;
 }
 
 @theme inline {
@@ -234,28 +228,80 @@
 }
 
 /*
- * Hero backdrop: soft lime, mint and lavender washes (AWS-style) that drift
- * and slowly shift hue. Purely decorative; frozen for reduced motion.
+ * Ambient page colour (AWS-style). A fixed full-page wash sits behind all
+ * content; each section declares a tint (data-tint) and, as it scrolls into
+ * view, BaseLayout's script copies it to <html data-tint>, cross-fading the
+ * wash. Registered properties make the colours animatable. A slow drift and
+ * hue shift keep it moving; both stop for reduced motion.
  */
-.hero-glow {
-  /* Fixed size (not % of the hero) so font loading can't resize it: CLS stays 0. */
-  position: absolute;
-  top: -8rem;
-  left: -10%;
-  right: -10%;
-  height: 58rem;
+@property --amb-1 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: transparent;
+}
+@property --amb-2 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: transparent;
+}
+@property --amb-3 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: transparent;
+}
+
+:root,
+:root[data-tint="lime"] {
+  --amb-1: rgb(205 242 120 / var(--amb-a));
+  --amb-2: rgb(165 236 205 / var(--amb-a));
+  --amb-3: rgb(214 200 255 / var(--amb-a));
+}
+:root[data-tint="mint"] {
+  --amb-1: rgb(160 236 210 / var(--amb-a));
+  --amb-2: rgb(196 228 255 / var(--amb-a));
+  --amb-3: rgb(220 248 180 / var(--amb-a));
+}
+:root[data-tint="sky"] {
+  --amb-1: rgb(176 214 255 / var(--amb-a));
+  --amb-2: rgb(170 236 230 / var(--amb-a));
+  --amb-3: rgb(214 204 255 / var(--amb-a));
+}
+:root[data-tint="violet"] {
+  --amb-1: rgb(205 186 255 / var(--amb-a));
+  --amb-2: rgb(178 206 255 / var(--amb-a));
+  --amb-3: rgb(240 200 255 / var(--amb-a));
+}
+:root[data-tint="peach"] {
+  --amb-1: rgb(255 206 165 / var(--amb-a));
+  --amb-2: rgb(255 186 160 / var(--amb-a));
+  --amb-3: rgb(255 228 170 / var(--amb-a));
+}
+:root[data-tint="rose"] {
+  --amb-1: rgb(255 196 220 / var(--amb-a));
+  --amb-2: rgb(220 205 255 / var(--amb-a));
+  --amb-3: rgb(255 220 190 / var(--amb-a));
+}
+
+.ambient {
+  position: fixed;
+  inset: -12vmax;
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(42% 55% at 12% 22%, var(--c-glow-1), transparent 70%),
-    radial-gradient(36% 50% at 52% 8%, var(--c-glow-2), transparent 70%),
-    radial-gradient(40% 60% at 92% 30%, var(--c-glow-3), transparent 70%);
-  mask-image: linear-gradient(to bottom, #000 50%, transparent);
+    radial-gradient(60vmax 46vmax at 14% 18%, var(--amb-1), transparent 72%),
+    radial-gradient(50vmax 40vmax at 58% 6%, var(--amb-2), transparent 72%),
+    radial-gradient(58vmax 50vmax at 90% 46%, var(--amb-3), transparent 72%),
+    radial-gradient(64vmax 46vmax at 30% 92%, var(--amb-2), transparent 72%),
+    radial-gradient(44vmax 38vmax at 62% 62%, var(--amb-1), transparent 72%);
+  transition:
+    --amb-1 1.2s ease,
+    --amb-2 1.2s ease,
+    --amb-3 1.2s ease;
   will-change: transform, filter;
-  animation: glow-drift 20s ease-in-out infinite alternate;
+  animation: ambient-drift 14s ease-in-out infinite alternate;
 }
 
-@keyframes glow-drift {
+@keyframes ambient-drift {
   0% {
     transform: translate3d(0, 0, 0) scale(1);
     filter: hue-rotate(0deg);
@@ -264,8 +310,8 @@
     transform: translate3d(3%, 2%, 0) scale(1.06);
   }
   100% {
-    transform: translate3d(-3%, 1%, 0) scale(1.02);
-    filter: hue-rotate(28deg);
+    transform: translate3d(-3%, 1%, 0) scale(1.03);
+    filter: hue-rotate(40deg);
   }
 }
 
@@ -341,7 +387,7 @@
 
   .led[data-pulse],
   .cursor,
-  .hero-glow {
+  .ambient {
     animation: none;
   }
 }

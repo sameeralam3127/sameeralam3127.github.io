@@ -4,7 +4,12 @@ import SectionHeading from "@/components/ui/SectionHeading.astro";
 import { sitePipeline } from "@/data/architecture";
 ---
 
-<section aria-labelledby="architecture" class="mx-auto max-w-6xl px-4 pt-24 sm:px-6" data-reveal>
+<section
+  aria-labelledby="architecture"
+  data-tint="mint"
+  class="mx-auto max-w-6xl px-4 pt-24 sm:px-6"
+  data-reveal
+>
   <SectionHeading
     id="architecture"
     command="cat .github/workflows/*.yml | less"

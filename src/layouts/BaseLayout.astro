@@ -100,6 +100,7 @@ const paletteItems = buildPaletteItems(await getDeepDiveSlugs());
     </script>
   </head>
   <body class="flex min-h-dvh flex-col antialiased">
+    <div class="ambient" aria-hidden="true"></div>
     <a
       href="#main"
       class="sr-only z-[70] rounded-full bg-btn px-4 py-2 font-mono text-sm text-btn-ink focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
@@ -114,6 +115,23 @@ const paletteItems = buildPaletteItems(await getDeepDiveSlugs());
     <CommandPalette client:idle items={paletteItems} email={profile.contact.email} />
     <Analytics />
 
+    <script>
+      // Ambient colour: whichever tinted section crosses the middle of the
+      // viewport sets <html data-tint>, and the CSS cross-fades the wash.
+      const tinted = document.querySelectorAll<HTMLElement>("[data-tint]");
+      if (tinted.length > 0 && "IntersectionObserver" in window) {
+        const tintObserver = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              const tint = (entry.target as HTMLElement).dataset.tint;
+              if (entry.isIntersecting && tint) document.documentElement.dataset.tint = tint;
+            }
+          },
+          { rootMargin: "-45% 0px -45% 0px" },
+        );
+        tinted.forEach((el) => tintObserver.observe(el));
+      }
+    </script>
     <script>
       // Reveal sections as they scroll into view. Skipped entirely when the
       // visitor prefers reduced motion (CSS already shows everything).
