@@ -12,6 +12,7 @@ import { setTheme, toggleTheme } from "@/lib/theme";
 
 interface Props {
   items: PaletteItem[];
+  email: string;
 }
 
 declare global {
@@ -27,7 +28,7 @@ declare global {
  * Ctrl/⌘+K command palette. Uses a native <dialog> for focus trapping, Escape
  * handling and inert background; the list follows the ARIA combobox pattern.
  */
-export default function CommandPalette({ items }: Props) {
+export default function CommandPalette({ items, email }: Props) {
   const dialog = useRef<HTMLDialogElement>(null);
   const input = useRef<HTMLInputElement>(null);
   const listId = useId();
@@ -93,6 +94,15 @@ export default function CommandPalette({ items }: Props) {
       if (item.action === "toggle-theme") toggleTheme();
       else setTheme("system");
       close();
+      return;
+    }
+    if (item.action === "copy-email") {
+      try {
+        await navigator.clipboard.writeText(email);
+        setNotice(`Copied ${email}`);
+      } catch {
+        setNotice(email);
+      }
       return;
     }
     if (item.href) {
