@@ -112,7 +112,7 @@ const paletteItems = buildPaletteItems(await getDeepDiveSlugs());
       <slot />
     </main>
     {!bare && <SiteFooter />}
-    <CommandPalette client:idle items={paletteItems} email={profile.contact.email} />
+    <CommandPalette client:idle items={paletteItems} />
     <Analytics />
 
     <script>

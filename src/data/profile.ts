@@ -138,7 +138,6 @@ export interface Profile {
     pdf?: string;
   };
   contact: {
-    email: string;
     social: SocialLink[];
   };
   site: {
@@ -588,7 +587,6 @@ export const profile: Profile = {
     pdf: "/Sameer-Alam-Resume.pdf",
   },
   contact: {
-    email: "sameeralam3127@gmail.com",
     social: [
       { label: "GitHub", href: GITHUB, icon: "github", handle: "sameeralam3127" },
       {

@@ -36,14 +36,6 @@ export const buildPaletteItems = (deepDives: string[]): PaletteItem[] => [
     keywords: "auto os dark light mode colour color",
   },
   {
-    id: "action-email",
-    label: "Copy email address",
-    group: "Actions",
-    action: "copy-email",
-    hint: profile.contact.email,
-    keywords: "contact mail",
-  },
-  {
     id: "action-resume",
     label: "Download resume (.docx)",
     group: "Actions",

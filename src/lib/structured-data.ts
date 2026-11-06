@@ -13,7 +13,6 @@ export const personSchema = () => ({
   description: profile.headline,
   url: `${site}/`,
   image: `${site}/og/index.png`,
-  email: `mailto:${profile.contact.email}`,
   address: {
     "@type": "PostalAddress",
     addressLocality: profile.location.split(",")[0]?.trim(),

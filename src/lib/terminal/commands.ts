@@ -224,10 +224,6 @@ const commands: Command[] = [
       }
       if (file === "contact") {
         return out(
-          line(
-            t(pad("email", 18), "muted"),
-            t(profile.contact.email, "accent", `mailto:${profile.contact.email}`),
-          ),
           ...profile.contact.social.map((s) =>
             line(t(pad(s.label.toLowerCase(), 18), "muted"), t(s.handle, "accent", s.href)),
           ),
@@ -274,11 +270,12 @@ const commands: Command[] = [
           ),
         ),
         blank,
-        task("contact : send email"),
-        line(
-          t(`changed: [${profile.handle}] => `, "warn"),
-          t(profile.contact.email, "accent", `mailto:${profile.contact.email}`),
-        ),
+        task("contact : reach out"),
+        ...profile.contact.social
+          .filter((s) => s.icon === "linkedin")
+          .map((s) =>
+            line(t(`changed: [${profile.handle}] => `, "warn"), t(s.handle, "accent", s.href)),
+          ),
         blank,
         line(t("PLAY RECAP ".padEnd(60, "*"), "default")),
         line(
