@@ -166,12 +166,14 @@ export const profile: Profile = {
     "I build, automate and operate infrastructure that is observable, reproducible, secure, diagnosable and resilient.",
   summary: [
     "Eight years building, automating and operating software and infrastructure — from enterprise Linux fleets to Kubernetes platforms.",
+    "Five years on cloud platforms (IBM Cloud and AWS), three years of hands-on Python automation and scripting, and two years running Docker, Kubernetes and CI/CD pipelines. I write up what I learn as hands-on guides on Compute Central.",
     "I work automation-first: if a task happens twice, it becomes a script, a playbook or a pipeline. Then I make it observable so the next failure explains itself.",
   ],
   focus: [
     "Kubernetes",
     "Linux",
     "AWS",
+    "IBM Cloud",
     "Terraform",
     "Ansible",
     "CI/CD & GitOps",
@@ -228,7 +230,7 @@ export const profile: Profile = {
     {
       id: "cloud-iac",
       title: "Cloud & infrastructure as code",
-      items: ["AWS", "Terraform", "Ansible", "Ansible Galaxy collections"],
+      items: ["AWS", "IBM Cloud", "Terraform", "Ansible", "Ansible Galaxy collections"],
     },
     {
       id: "delivery",
@@ -266,7 +268,16 @@ export const profile: Profile = {
     {
       id: "ai",
       title: "AI / LLM tooling",
-      items: ["Ollama", "Hugging Face", "FastAPI", "Gradio", "RAG", "Gemini Enterprise"],
+      items: [
+        "Ollama",
+        "LiteLLM",
+        "MCP",
+        "Hugging Face",
+        "FastAPI",
+        "Gradio",
+        "RAG",
+        "Gemini Enterprise",
+      ],
     },
   ],
   projects: [
@@ -414,11 +425,11 @@ export const profile: Profile = {
     {
       slug: "llm-dev-kit",
       name: "llm-dev-kit",
-      tagline: "Local LLM + RAG toolkit",
+      tagline: "Self-hosted LLM workspace with RAG",
       description:
-        "Local LLM and RAG development toolkit using Ollama, Streamlit, ChromaDB and Redis for prompt, PDF and vector-search experiments.",
+        "Local-first, self-hosted LLM workspace: RAG over your own documents, Ollama locally or cloud models through LiteLLM, and MCP tool integration for agents, deployed with Docker Compose.",
       status: "stable",
-      stack: ["Ollama", "ChromaDB", "Redis", "Docker"],
+      stack: ["Next.js", "Ollama", "LiteLLM", "MCP", "ChromaDB", "Docker Compose"],
       repo: "sameeralam3127/llm-dev-kit",
       repoPublic: true,
       featured: false,
@@ -473,11 +484,34 @@ export const profile: Profile = {
   ],
   openSource: [
     {
-      project: "IBM/docling-pipelines",
-      repo: "IBM/docling-pipelines",
+      project: "docling-project/docling-pipelines",
+      repo: "docling-project/docling-pipelines",
       status: "merged",
       summary: "Refactored the Ollama client to hoist repeated imports out of hot-path methods.",
-      href: "https://github.com/IBM/docling-pipelines/pull/133",
+      href: "https://github.com/docling-project/docling-pipelines/pull/133",
+    },
+    {
+      project: "mloda-ai/mloda",
+      repo: "mloda-ai/mloda",
+      status: "merged",
+      summary:
+        "Documented the pinned allowlist count for illustrative doc code blocks, so contributors learn about it before a test fails.",
+      href: "https://github.com/mloda-ai/mloda/pull/1443",
+    },
+    {
+      project: "ansible/ansible-lint",
+      repo: "ansible/ansible-lint",
+      status: "merged",
+      summary:
+        "Added the validate_argspec play keyword (ansible-core 2.20) to the play schema, so valid playbooks are no longer rejected.",
+      href: "https://github.com/ansible/ansible-lint/pull/5187",
+    },
+    {
+      project: "ansible-community/awesome-ansible",
+      repo: "ansible-community/awesome-ansible",
+      status: "merged",
+      summary: "Added the Compute Central Ansible guide to the community list's Tutorials section.",
+      href: "https://github.com/ansible-community/awesome-ansible/pull/112",
     },
     {
       project: "K8sGPT (CNCF)",
